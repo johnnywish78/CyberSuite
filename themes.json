@@ -1,0 +1,253 @@
+{
+  "themes": [
+    {
+      "id": "cyberpunk-2077", "name": "Cyberpunk 2077", "label": "Cyberpunk",
+      "category": "Gaming",  "tagline": "Night City — 2077",
+      "bg":"#080810","sidebar":"#0c0c18","card":"#111120","border":"#1e1e3a",
+      "accent":"#ffff00","accent2":"#ff00ff","text":"#c8c8e8","dim":"#555577",
+      "danger":"#ff3333","cpu":"#00e5ff","ram":"#ee00cc","gpu":"#aa44ff","net":"#00ff88",
+      "term_bg":"#030308","title_bg":"#05050f","scrollbar":"#ffff0055"
+    },
+    {
+      "id": "gta-vi", "name": "GTA VI", "label": "GTA VI",
+      "category": "Gaming", "tagline": "Leonida — 2025",
+      "bg":"#0d0a00","sidebar":"#130e00","card":"#1a1200","border":"#2e2200",
+      "accent":"#d4a017","accent2":"#ff6600","text":"#e8d8a0","dim":"#887744",
+      "danger":"#ff3333","cpu":"#d4a017","ram":"#ff6600","gpu":"#ffaa00","net":"#44ff88",
+      "term_bg":"#080500","title_bg":"#0a0700","scrollbar":"#d4a01755"
+    },
+    {
+      "id": "gta-v", "name": "GTA V", "label": "GTA V",
+      "category": "Gaming", "tagline": "Los Santos — 2013",
+      "bg":"#060a14","sidebar":"#080e1a","card":"#0d1422","border":"#1a2233",
+      "accent":"#2a9fd6","accent2":"#ff8c00","text":"#c8d8e8","dim":"#446688",
+      "danger":"#ff3333","cpu":"#2a9fd6","ram":"#ff8c00","gpu":"#6699ff","net":"#00ff88",
+      "term_bg":"#040810","title_bg":"#050a12","scrollbar":"#2a9fd655"
+    },
+    {
+      "id": "gta-iv", "name": "GTA IV", "label": "GTA IV",
+      "category": "Gaming", "tagline": "Liberty City — 2008",
+      "bg":"#080c14","sidebar":"#0a1018","card":"#0f1620","border":"#1e2838",
+      "accent":"#ff8c00","accent2":"#ffcc44","text":"#c0c8d8","dim":"#445566",
+      "danger":"#ff3333","cpu":"#00e5ff","ram":"#ff8c00","gpu":"#ffcc44","net":"#00ff88",
+      "term_bg":"#050810","title_bg":"#060910","scrollbar":"#ff8c0055"
+    },
+    {
+      "id": "death-stranding", "name": "Death Stranding", "label": "Death Stranding",
+      "category": "Gaming", "tagline": "Bridges — Connect",
+      "bg":"#050508","sidebar":"#080810","card":"#0c0c14","border":"#181820",
+      "accent":"#c8aa44","accent2":"#8888ff","text":"#d0d0e0","dim":"#555566",
+      "danger":"#ff3333","cpu":"#c8aa44","ram":"#8888ff","gpu":"#aaaacc","net":"#44ccff",
+      "term_bg":"#030306","title_bg":"#040408","scrollbar":"#c8aa4455"
+    },
+    {
+      "id": "inception", "name": "Inception", "label": "Inception",
+      "category": "Sci-Fi", "tagline": "Dreams — 2010",
+      "bg":"#1a2030","sidebar":"#0d1018","card":"#141a28","border":"#283050",
+      "accent":"#ffb703","accent2":"#00e5ff","text":"#e0e0e0","dim":"#4a4a60",
+      "danger":"#ff3366","cpu":"#00e5ff","ram":"#ffb703","gpu":"#8a2be2","net":"#00ff88"
+    },
+    {
+      "id": "harry_potter", "name": "Harry Potter", "label": "Harry Potter",
+      "category": "Fantasy", "tagline": "Hogwarts — Magic",
+      "bg":"#080410","sidebar":"#0e0618","card":"#140820","border":"#2a1040",
+      "accent":"#c9a800","accent2":"#8b44ff","text":"#e8d8cc","dim":"#665548",
+      "danger":"#cc2222","cpu":"#c9a800","ram":"#8b44ff","gpu":"#aa6600","net":"#44aa44",
+      "term_bg":"#040208","title_bg":"#060310","scrollbar":"#c9a80055"
+    },
+    {
+      "id": "the-matrix", "name": "The Matrix", "label": "Matrix",
+      "category": "Sci-Fi", "tagline": "The Matrix — Reality",
+      "bg":"#000800","sidebar":"#001000","card":"#001800","border":"#003300",
+      "accent":"#00ff00","accent2":"#00cc00","text":"#00ff00","dim":"#006600",
+      "danger":"#ff4400","cpu":"#00ff00","ram":"#00cc00","gpu":"#009900","net":"#00ff88",
+      "term_bg":"#000400","title_bg":"#000600","scrollbar":"#00ff0055"
+    },
+    {
+      "id": "game-of-thrones", "name": "Game of Thrones", "label": "GoT",
+      "category": "Fantasy", "tagline": "Westeros — Chaos",
+      "bg":"#080808","sidebar":"#101010","card":"#141414","border":"#282828",
+      "accent":"#c0c0c0","accent2":"#888888","text":"#d0d0d0","dim":"#555555",
+      "danger":"#cc2222","cpu":"#c0c0c0","ram":"#888888","gpu":"#666666","net":"#aaaaaa",
+      "term_bg":"#040404","title_bg":"#060606","scrollbar":"#c0c0c055"
+    },
+    {
+      "id": "lost", "name": "LOST", "label": "LOST",
+      "category": "TV", "tagline": "The Island — Lost",
+      "bg":"#040e08","sidebar":"#061410","card":"#081a12","border":"#142a1e",
+      "accent":"#00ff88","accent2":"#00ccaa","text":"#c0e8cc","dim":"#336655",
+      "danger":"#ff3333","cpu":"#00ff88","ram":"#00ccaa","gpu":"#44ff88","net":"#00aacc",
+      "term_bg":"#020806","title_bg":"#030c08","scrollbar":"#00ff8855"
+    },
+    {
+      "id": "dark-2017", "name": "Dark", "label": "Dark",
+      "category": "TV", "tagline": "Winden — 2017",
+      "bg":"#050505","sidebar":"#0a0a0a","card":"#101010","border":"#1a1a1a",
+      "accent":"#d32f2f","accent2":"#b0b0b0","text":"#b0b0b0","dim":"#4a4a4a",
+      "danger":"#ff3366","cpu":"#00e5ff","ram":"#d32f2f","gpu":"#6a6a6a","net":"#00ff88"
+    },
+    {
+      "id": "money_heist", "name": "Money Heist", "label": "Money Heist",
+      "category": "TV", "tagline": "Casa de Papel — Red",
+      "bg":"#c21e2f","sidebar":"#a01828","card":"#8a1520","border":"#6a0a18",
+      "accent":"#f2c900","accent2":"#000000","text":"#ffffff","dim":"#d0d0d0",
+      "danger":"#000000","cpu":"#f2c900","ram":"#f2c900","gpu":"#d0a0a0","net":"#00ff88"
+    },
+    {
+      "id": "godfather", "name": "The Godfather", "label": "Godfather",
+      "category": "Movies", "tagline": "Mafia — 1972",
+      "bg":"#2b1b0e","sidebar":"#1a100a","card":"#3a2a18","border":"#5a4a38",
+      "accent":"#8b0000","accent2":"#e2c29b","text":"#e2c29b","dim":"#7a6a58",
+      "danger":"#ff3366","cpu":"#8b0000","ram":"#e2c29b","gpu":"#d4af37","net":"#00ff88"
+    },
+    {
+      "id": "terminator", "name": "Terminator", "label": "Terminator",
+      "category": "Sci-Fi", "tagline": "Judgment Day — 1984",
+      "bg":"#101010","sidebar":"#050505","card":"#1a1a1a","border":"#2a2a2a",
+      "accent":"#ff0000","accent2":"#c0c0c0","text":"#ff0000","dim":"#4a4a4a",
+      "danger":"#ff3366","cpu":"#c0c0c0","ram":"#ff0000","gpu":"#4a4a4a","net":"#00ff88"
+    },
+    {
+      "id": "interstellar", "name": "Interstellar", "label": "Interstellar",
+      "category": "Sci-Fi", "tagline": "Space — Time",
+      "bg":"#0b101f","sidebar":"#060a18","card":"#121a2e","border":"#1a2a4a",
+      "accent":"#ffd700","accent2":"#b0c4de","text":"#b0c4de","dim":"#4a5a6a",
+      "danger":"#ff3366","cpu":"#ffd700","ram":"#b0c4de","gpu":"#6a7a8a","net":"#00ff88"
+    },
+    {
+      "id": "the_last_of_us", "name": "The Last of Us", "label": "The Last of Us",
+      "category": "Gaming", "tagline": "Survival — 2013",
+      "bg":"#1c1917","sidebar":"#2a2725","card":"#3a3735","border":"#4a4745",
+      "accent":"#4a8c3f","accent2":"#a8a29e","text":"#a8a29e","dim":"#5a5755",
+      "danger":"#ff3366","cpu":"#4a8c3f","ram":"#a8a29e","gpu":"#8a8785","net":"#00ff88"
+    },
+    {
+      "id": "resident_evil", "name": "Resident Evil", "label": "Resident Evil",
+      "category": "Gaming", "tagline": "Raccoon City — 1996",
+      "bg":"#0d0d0d","sidebar":"#1a1a1a","card":"#2a2a2a","border":"#4a4a4a",
+      "accent":"#bf0000","accent2":"#006400","text":"#bf0000","dim":"#4a4a4a",
+      "danger":"#ff3366","cpu":"#bf0000","ram":"#006400","gpu":"#4a4a4a","net":"#00ff88"
+    },
+    {
+      "id": "blade_runner_2049", "name": "Blade Runner 2049", "label": "Blade Runner",
+      "category": "Sci-Fi", "tagline": "Los Angeles — 2049",
+      "bg":"#0a0a14","sidebar":"#14142a","card":"#1a1a3a","border":"#2a2a5a",
+      "accent":"#ff3333","accent2":"#00ffff","text":"#00ffff","dim":"#4a4a6a",
+      "danger":"#ff3366","cpu":"#ff3333","ram":"#00ffff","gpu":"#5a5a8a","net":"#00ff88"
+    },
+    {
+      "id": "dune", "name": "Dune", "label": "Dune",
+      "category": "Sci-Fi", "tagline": "Arrakis — Spice",
+      "bg":"#1a0f00","sidebar":"#2a1a00","card":"#3a2a08","border":"#4a3a18",
+      "accent":"#8b5a2b","accent2":"#d4af37","text":"#d4af37","dim":"#6a5a3a",
+      "danger":"#ff3366","cpu":"#8b5a2b","ram":"#d4af37","gpu":"#8a7a5a","net":"#00ff88"
+    },
+    {
+      "id": "star_wars", "name": "Star Wars", "label": "Star Wars",
+      "category": "Sci-Fi", "tagline": "Galaxy — Far Away",
+      "bg":"#000000","sidebar":"#080808","card":"#101010","border":"#1a1a1a",
+      "accent":"#ffe81f","accent2":"#ffffff","text":"#ffe81f","dim":"#4a4a4a",
+      "danger":"#ff3366","cpu":"#ffe81f","ram":"#ffffff","gpu":"#6a6a6a","net":"#00ff88"
+    },
+    {
+      "id": "the_witcher", "name": "The Witcher", "label": "The Witcher",
+      "category": "Fantasy", "tagline": "Continent — Geralt",
+      "bg":"#0a0a0a","sidebar":"#141414","card":"#1a1a1a","border":"#2a2a2a",
+      "accent":"#d2691e","accent2":"#c0c0c0","text":"#c0c0c0","dim":"#4a4a4a",
+      "danger":"#ff3366","cpu":"#d2691e","ram":"#c0c0c0","gpu":"#6a6a6a","net":"#00ff88"
+    },
+    {
+      "id": "red_dead_2", "name": "Red Dead Redemption 2", "label": "Red Dead 2",
+      "category": "Gaming", "tagline": "Wild West — 1899",
+      "bg":"#1a0f0a","sidebar":"#2a1a10","card":"#3a2a1a","border":"#4a3a2a",
+      "accent":"#8b0000","accent2":"#d4af37","text":"#d4af37","dim":"#6a5a4a",
+      "danger":"#ff3366","cpu":"#8b0000","ram":"#d4af37","gpu":"#8a7a5a","net":"#00ff88"
+    },
+    {
+      "id": "elden_ring", "name": "Elden Ring", "label": "Elden Ring",
+      "category": "Gaming", "tagline": "Lands Between — FromSoftware",
+      "bg":"#0a0a0a","sidebar":"#0e0a00","card":"#140e00","border":"#281a00",
+      "accent":"#d4aa00","accent2":"#ff6600","text":"#f0e68c","dim":"#664400",
+      "danger":"#ff2200","cpu":"#d4aa00","ram":"#ff6600","gpu":"#ffaa44","net":"#88ffaa",
+      "term_bg":"#040300","title_bg":"#060500","scrollbar":"#d4aa0055"
+    },
+    {
+      "id": "fallout", "name": "Fallout", "label": "Fallout",
+      "category": "Gaming", "tagline": "Vault — 2277",
+      "bg":"#0a0a0a","sidebar":"#141414","card":"#1a1a1a","border":"#2a2a2a",
+      "accent":"#ffff00","accent2":"#00ff00","text":"#00ff00","dim":"#4a4a4a",
+      "danger":"#ff3366","cpu":"#ffff00","ram":"#00ff00","gpu":"#6a6a6a","net":"#00ff88"
+    },
+    {
+      "id": "stranger_things", "name": "Stranger Things", "label": "Stranger Things",
+      "category": "TV", "tagline": "Upside Down — 1983",
+      "bg":"#1a0a0a","sidebar":"#2a1a1a","card":"#3a2a2a","border":"#4a3a3a",
+      "accent":"#ff0000","accent2":"#00ffff","text":"#ff0000","dim":"#4a3a3a",
+      "danger":"#ff3366","cpu":"#00ffff","ram":"#ff0000","gpu":"#6a5a5a","net":"#00ff88"
+    },
+    {
+      "id": "breaking_bad", "name": "Breaking Bad", "label": "Breaking Bad",
+      "category": "TV", "tagline": "Chemistry — 2008",
+      "bg":"#0a0a0a","sidebar":"#141414","card":"#1a1a1a","border":"#2a2a2a",
+      "accent":"#00ff00","accent2":"#ff0000","text":"#00ff00","dim":"#4a4a4a",
+      "danger":"#ff3366","cpu":"#ff0000","ram":"#00ff00","gpu":"#6a6a6a","net":"#00ff88"
+    },
+    {
+      "id": "peaky_blinders", "name": "Peaky Blinders", "label": "Peaky Blinders",
+      "category": "TV", "tagline": "Birmingham — 1919",
+      "bg":"#0a0a0a","sidebar":"#141414","card":"#1a1a1a","border":"#2a2a2a",
+      "accent":"#d4af37","accent2":"#c0c0c0","text":"#c0c0c0","dim":"#4a4a4a",
+      "danger":"#ff3366","cpu":"#d4af37","ram":"#c0c0c0","gpu":"#6a6a6a","net":"#00ff88"
+    },
+    {
+      "id": "vikings", "name": "Vikings", "label": "Vikings",
+      "category": "TV", "tagline": "Norse — 793",
+      "bg":"#0a0a0a","sidebar":"#141414","card":"#1a1a1a","border":"#2a2a2a",
+      "accent":"#ff4500","accent2":"#c0c0c0","text":"#c0c0c0","dim":"#4a4a4a",
+      "danger":"#ff3366","cpu":"#ff4500","ram":"#c0c0c0","gpu":"#6a6a6a","net":"#00ff88"
+    },
+    {
+      "id": "john_wick", "name": "John Wick", "label": "John Wick",
+      "category": "Movies", "tagline": "Baba Yaga — 2014",
+      "bg":"#0a0a0a","sidebar":"#141414","card":"#1a1a1a","border":"#2a2a2a",
+      "accent":"#ff0000","accent2":"#c0c0c0","text":"#c0c0c0","dim":"#4a4a4a",
+      "danger":"#ff3366","cpu":"#ff0000","ram":"#c0c0c0","gpu":"#6a6a6a","net":"#00ff88"
+    },
+    {
+      "id": "mad_max", "name": "Mad Max", "label": "Mad Max",
+      "category": "Movies", "tagline": "Wasteland — 1979",
+      "bg":"#0a0a0a","sidebar":"#141414","card":"#1a1a1a","border":"#2a2a2a",
+      "accent":"#ff4500","accent2":"#d4af37","text":"#ff4500","dim":"#4a4a4a",
+      "danger":"#ff3366","cpu":"#d4af37","ram":"#ff4500","gpu":"#6a6a6a","net":"#00ff88"
+    },
+    {
+      "id": "alien", "name": "Alien", "label": "Alien",
+      "category": "Sci-Fi", "tagline": "LV-426 — Xenomorph",
+      "bg":"#040804","sidebar":"#060e06","card":"#081408","border":"#102010",
+      "accent":"#44ff44","accent2":"#00aa00","text":"#88cc88","dim":"#336633",
+      "danger":"#ff4400","cpu":"#44ff44","ram":"#00aa00","gpu":"#22bb22","net":"#44aaaa",
+      "term_bg":"#020402","title_bg":"#030603","scrollbar":"#44ff4455"
+    },
+    {
+      "id": "the_da_vinci_code", "name": "The Da Vinci Code", "label": "Da Vinci Code",
+      "category": "Movies", "tagline": "Mystery — 2006",
+      "bg":"#0a0a14","sidebar":"#14142a","card":"#1a1a3a","border":"#2a2a5a",
+      "accent":"#c8b400","accent2":"#6a4a2a","text":"#c8b400","dim":"#4a4a6a",
+      "danger":"#ff3366","cpu":"#c8b400","ram":"#6a4a2a","gpu":"#5a5a8a","net":"#00ff88"
+    },
+    {
+      "id": "the_last_of_the_mohicans", "name": "The Last of the Mohicans", "label": "Last Mohicans",
+      "category": "Movies", "tagline": "Wilderness — 1992",
+      "bg":"#1a2a1a","sidebar":"#2a3a2a","card":"#3a4a3a","border":"#4a5a4a",
+      "accent":"#6a4a2a","accent2":"#8a7a5a","text":"#8a7a5a","dim":"#5a6a5a",
+      "danger":"#ff3366","cpu":"#6a4a2a","ram":"#8a7a5a","gpu":"#8a7a5a","net":"#00ff88"
+    },
+    {
+      "id": "outlander", "name": "Outlander", "label": "Outlander",
+      "category": "TV", "tagline": "Highlands — 1743",
+      "bg":"#0a2a1a","sidebar":"#1a3a2a","card":"#2a4a3a","border":"#3a5a4a",
+      "accent":"#4a8a5a","accent2":"#8a6a4a","text":"#8a6a4a","dim":"#4a5a4a",
+      "danger":"#ff3366","cpu":"#4a8a5a","ram":"#8a6a4a","gpu":"#6a8a6a","net":"#00ff88"
+    }
+  ]
+}

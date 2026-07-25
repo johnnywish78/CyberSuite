@@ -1,0 +1,308 @@
+{
+  "cyberpunk-2077": {
+    "bg": "https://loremflickr.com/1920/1080/cyberpunk,neon,city,night",
+    "font": {
+      "family": "Orbitron",
+      "url": "https://fonts.googleapis.com/css2?family=Orbitron&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%230c0c18%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ffff00%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ffff00%27%20text-anchor%3D%27middle%27%3EC%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+  },
+  "gta-vi": {
+    "bg": "https://loremflickr.com/1920/1080/miami,beach,neon,palm",
+    "font": {
+      "family": "Anton",
+      "url": "https://fonts.googleapis.com/css2?family=Anton&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23130e00%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23d4a017%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23d4a017%27%20text-anchor%3D%27middle%27%3EG%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+  },
+  "gta-v": {
+    "bg": "https://loremflickr.com/1920/1080/los,angeles,city,palm",
+    "font": {
+      "family": "Anton",
+      "url": "https://fonts.googleapis.com/css2?family=Anton&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23080e1a%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%232a9fd6%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%232a9fd6%27%20text-anchor%3D%27middle%27%3EG%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+  },
+  "gta-iv": {
+    "bg": "https://loremflickr.com/1920/1080/new,york,city,skyline",
+    "font": {
+      "family": "Anton",
+      "url": "https://fonts.googleapis.com/css2?family=Anton&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%230a1018%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ff8c00%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ff8c00%27%20text-anchor%3D%27middle%27%3EG%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
+  },
+  "death-stranding": {
+    "bg": "https://loremflickr.com/1920/1080/mountains,fog,landscape,hiking",
+    "font": {
+      "family": "Rajdhani",
+      "url": "https://fonts.googleapis.com/css2?family=Rajdhani&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23080810%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23c8aa44%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23c8aa44%27%20text-anchor%3D%27middle%27%3ED%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"
+  },
+  "inception": {
+    "bg": "https://loremflickr.com/1920/1080/city,surreal,architecture,dream",
+    "font": {
+      "family": "Michroma",
+      "url": "https://fonts.googleapis.com/css2?family=Michroma&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%230d1018%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ffb703%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ffb703%27%20text-anchor%3D%27middle%27%3EI%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"
+  },
+  "harry_potter": {
+    "bg": "https://loremflickr.com/1920/1080/castle,magic,owl,dark",
+    "font": {
+      "family": "Cinzel",
+      "url": "https://fonts.googleapis.com/css2?family=Cinzel&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%230e0618%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23c9a800%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23c9a800%27%20text-anchor%3D%27middle%27%3EH%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"
+  },
+  "the-matrix": {
+    "bg": "https://loremflickr.com/1920/1080/matrix,code,green,digital",
+    "font": {
+      "family": "Share Tech Mono",
+      "url": "https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23001000%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%2300ff00%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%2300ff00%27%20text-anchor%3D%27middle%27%3EM%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
+  },
+  "game-of-thrones": {
+    "bg": "https://loremflickr.com/1920/1080/castle,throne,winter,medieval",
+    "font": {
+      "family": "Cinzel",
+      "url": "https://fonts.googleapis.com/css2?family=Cinzel&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23101010%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23c0c0c0%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23c0c0c0%27%20text-anchor%3D%27middle%27%3EG%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"
+  },
+  "lost": {
+    "bg": "https://loremflickr.com/1920/1080/island,jungle,beach,tropical",
+    "font": {
+      "family": "Special Elite",
+      "url": "https://fonts.googleapis.com/css2?family=Special+Elite&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23061410%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%2300ff88%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%2300ff88%27%20text-anchor%3D%27middle%27%3EL%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3"
+  },
+  "dark-2017": {
+    "bg": "https://loremflickr.com/1920/1080/cave,forest,fog,dark",
+    "font": {
+      "family": "Cormorant Garamond",
+      "url": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%230a0a0a%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23d32f2f%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23d32f2f%27%20text-anchor%3D%27middle%27%3ED%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3"
+  },
+  "money_heist": {
+    "bg": "https://loremflickr.com/1920/1080/mask,red,money,heist",
+    "font": {
+      "family": "Bebas Neue",
+      "url": "https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23a01828%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23f2c900%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23f2c900%27%20text-anchor%3D%27middle%27%3EM%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3"
+  },
+  "godfather": {
+    "bg": "https://loremflickr.com/1920/1080/mafia,vintage,rose,noir",
+    "font": {
+      "family": "EB Garamond",
+      "url": "https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%231a100a%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%238b0000%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%238b0000%27%20text-anchor%3D%27middle%27%3EG%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3"
+  },
+  "terminator": {
+    "bg": "https://loremflickr.com/1920/1080/robot,metal,skull,future",
+    "font": {
+      "family": "Orbitron",
+      "url": "https://fonts.googleapis.com/css2?family=Orbitron&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23050505%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ff0000%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ff0000%27%20text-anchor%3D%27middle%27%3ET%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3"
+  },
+  "interstellar": {
+    "bg": "https://loremflickr.com/1920/1080/space,galaxy,stars,nebula",
+    "font": {
+      "family": "Michroma",
+      "url": "https://fonts.googleapis.com/css2?family=Michroma&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23060a18%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ffd700%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ffd700%27%20text-anchor%3D%27middle%27%3EI%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3"
+  },
+  "the_last_of_us": {
+    "bg": "https://loremflickr.com/1920/1080/ruins,nature,post,apocalyptic",
+    "font": {
+      "family": "Oswald",
+      "url": "https://fonts.googleapis.com/css2?family=Oswald&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%232a2725%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%234a8c3f%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%234a8c3f%27%20text-anchor%3D%27middle%27%3ET%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3"
+  },
+  "resident_evil": {
+    "bg": "https://loremflickr.com/1920/1080/horror,zombie,abandoned,dark",
+    "font": {
+      "family": "Creepster",
+      "url": "https://fonts.googleapis.com/css2?family=Creepster&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%231a1a1a%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23bf0000%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23bf0000%27%20text-anchor%3D%27middle%27%3ER%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+  },
+  "blade_runner_2049": {
+    "bg": "https://loremflickr.com/1920/1080/cyberpunk,neon,city,rain",
+    "font": {
+      "family": "Orbitron",
+      "url": "https://fonts.googleapis.com/css2?family=Orbitron&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%2314142a%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ff3333%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ff3333%27%20text-anchor%3D%27middle%27%3EB%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+  },
+  "dune": {
+    "bg": "https://loremflickr.com/1920/1080/desert,sand,dune,sun",
+    "font": {
+      "family": "Marcellus",
+      "url": "https://fonts.googleapis.com/css2?family=Marcellus&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%232a1a00%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%238b5a2b%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%238b5a2b%27%20text-anchor%3D%27middle%27%3ED%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+  },
+  "star_wars": {
+    "bg": "https://loremflickr.com/1920/1080/space,stars,galaxy,starfield",
+    "font": {
+      "family": "Russo One",
+      "url": "https://fonts.googleapis.com/css2?family=Russo+One&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23080808%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ffe81f%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ffe81f%27%20text-anchor%3D%27middle%27%3ES%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
+  },
+  "the_witcher": {
+    "bg": "https://loremflickr.com/1920/1080/medieval,fantasy,forest,sword",
+    "font": {
+      "family": "Cinzel",
+      "url": "https://fonts.googleapis.com/css2?family=Cinzel&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23141414%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23d2691e%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23d2691e%27%20text-anchor%3D%27middle%27%3ET%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"
+  },
+  "red_dead_2": {
+    "bg": "https://loremflickr.com/1920/1080/western,desert,horse,cowboy",
+    "font": {
+      "family": "Rye",
+      "url": "https://fonts.googleapis.com/css2?family=Rye&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%232a1a10%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%238b0000%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%238b0000%27%20text-anchor%3D%27middle%27%3ER%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"
+  },
+  "elden_ring": {
+    "bg": "https://loremflickr.com/1920/1080/fantasy,castle,dark,golden",
+    "font": {
+      "family": "Cinzel",
+      "url": "https://fonts.googleapis.com/css2?family=Cinzel&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%230e0a00%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23d4aa00%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23d4aa00%27%20text-anchor%3D%27middle%27%3EE%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"
+  },
+  "fallout": {
+    "bg": "https://loremflickr.com/1920/1080/wasteland,retro,vault,ruins",
+    "font": {
+      "family": "VT323",
+      "url": "https://fonts.googleapis.com/css2?family=VT323&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23141414%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ffff00%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ffff00%27%20text-anchor%3D%27middle%27%3EF%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
+  },
+  "stranger_things": {
+    "bg": "https://loremflickr.com/1920/1080/neon,80s,forest,dark",
+    "font": {
+      "family": "Righteous",
+      "url": "https://fonts.googleapis.com/css2?family=Righteous&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%232a1a1a%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ff0000%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ff0000%27%20text-anchor%3D%27middle%27%3ES%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"
+  },
+  "breaking_bad": {
+    "bg": "https://loremflickr.com/1920/1080/desert,new,mexico,rv",
+    "font": {
+      "family": "Courier Prime",
+      "url": "https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23141414%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%2300ff00%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%2300ff00%27%20text-anchor%3D%27middle%27%3EB%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3"
+  },
+  "peaky_blinders": {
+    "bg": "https://loremflickr.com/1920/1080/vintage,industrial,city,noir",
+    "font": {
+      "family": "Oswald",
+      "url": "https://fonts.googleapis.com/css2?family=Oswald&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23141414%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23d4af37%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23d4af37%27%20text-anchor%3D%27middle%27%3EP%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3"
+  },
+  "vikings": {
+    "bg": "https://loremflickr.com/1920/1080/viking,norse,ship,fjord",
+    "font": {
+      "family": "MedievalSharp",
+      "url": "https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23141414%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ff4500%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ff4500%27%20text-anchor%3D%27middle%27%3EV%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3"
+  },
+  "john_wick": {
+    "bg": "https://loremflickr.com/1920/1080/noir,neon,suit,city",
+    "font": {
+      "family": "Oswald",
+      "url": "https://fonts.googleapis.com/css2?family=Oswald&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23141414%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ff0000%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ff0000%27%20text-anchor%3D%27middle%27%3EJ%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3"
+  },
+  "mad_max": {
+    "bg": "https://loremflickr.com/1920/1080/desert,wasteland,car,apocalypse",
+    "font": {
+      "family": "Wallpoet",
+      "url": "https://fonts.googleapis.com/css2?family=Wallpoet&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23141414%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23ff4500%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23ff4500%27%20text-anchor%3D%27middle%27%3EM%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3"
+  },
+  "alien": {
+    "bg": "https://loremflickr.com/1920/1080/space,dark,spaceship,horror",
+    "font": {
+      "family": "Orbitron",
+      "url": "https://fonts.googleapis.com/css2?family=Orbitron&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23060e06%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%2344ff44%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%2344ff44%27%20text-anchor%3D%27middle%27%3EA%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3"
+  },
+  "the_da_vinci_code": {
+    "bg": "https://loremflickr.com/1920/1080/vatican,cathedral,art,mystery",
+    "font": {
+      "family": "Cinzel",
+      "url": "https://fonts.googleapis.com/css2?family=Cinzel&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%2314142a%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%23c8b400%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%23c8b400%27%20text-anchor%3D%27middle%27%3ED%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3"
+  },
+  "the_last_of_the_mohicans": {
+    "bg": "https://loremflickr.com/1920/1080/forest,wilderness,mountains",
+    "font": {
+      "family": "EB Garamond",
+      "url": "https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%232a3a2a%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%236a4a2a%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%236a4a2a%27%20text-anchor%3D%27middle%27%3EL%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+  },
+  "outlander": {
+    "bg": "https://loremflickr.com/1920/1080/scotland,highlands,castle,stone",
+    "font": {
+      "family": "Cormorant Garamond",
+      "url": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap"
+    },
+    "icon": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2764%27%20height%3D%2764%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%231a3a2a%27%2F%3E%3Crect%20x%3D%272.5%27%20y%3D%272.5%27%20width%3D%2759%27%20height%3D%2759%27%20rx%3D%2712%27%20fill%3D%27none%27%20stroke%3D%27%234a8a5a%27%20stroke-width%3D%272.5%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-size%3D%2734%27%20font-weight%3D%27bold%27%20fill%3D%27%234a8a5a%27%20text-anchor%3D%27middle%27%3EO%3C%2Ftext%3E%3C%2Fsvg%3E",
+    "music": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+  }
+}

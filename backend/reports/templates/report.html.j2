@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }}</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', 'SF Pro', -apple-system, sans-serif;
+    background: #0d0d0d;
+    color: #e0e0e0;
+    line-height: 1.6;
+    padding: 40px;
+}
+.report-header {
+    text-align: center;
+    padding: 40px 0;
+    border-bottom: 1px solid #222;
+    margin-bottom: 40px;
+}
+.report-header h1 {
+    font-size: 28px;
+    color: #00f0ff;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+}
+.report-header .subtitle {
+    font-size: 13px;
+    color: #666;
+    letter-spacing: 2px;
+}
+.report-header .meta {
+    margin-top: 16px;
+    font-size: 12px;
+    color: #888;
+}
+.section {
+    margin-bottom: 40px;
+    background: #111;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 24px;
+}
+.section-title {
+    font-size: 16px;
+    color: #00f0ff;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #1a1a1a;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #1a1a1a;
+    color: #00f0ff;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #1a1a1a;
+    color: #ccc;
+}
+table tr:hover td { background: rgba(0, 240, 255, 0.03); }
+.kv-table td:first-child {
+    color: #888;
+    width: 200px;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+.kv-table td:last-child {
+    color: #e0e0e0;
+    font-weight: 500;
+}
+.chart-container {
+    text-align: center;
+    margin: 20px 0;
+}
+.chart-container img {
+    max-width: 100%;
+    border-radius: 8px;
+    border: 1px solid #1a1a1a;
+}
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #1a1a1a;
+    font-size: 11px;
+    color: #555;
+    letter-spacing: 2px;
+}
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+}
+.badge-up { background: rgba(0,255,136,.15); color: #00ff88; }
+.badge-down { background: rgba(255,51,102,.15); color: #ff3366; }
+</style>
+</head>
+<body>
+<div class="report-header">
+    <h1>{{ title }}</h1>
+    <div class="subtitle">CYBERSUITE X — SYSTEM REPORT</div>
+    <div class="meta">Generated: {{ generated_at }} | Host: {{ hostname }}</div>
+</div>
+
+{% if system_info %}
+<div class="section">
+    <div class="section-title">SYSTEM INFORMATION</div>
+    <table class="kv-table">
+        <tr><td>Operating System</td><td>{{ system_info.os }}</td></tr>
+        <tr><td>Kernel</td><td>{{ system_info.kernel }}</td></tr>
+        <tr><td>Hostname</td><td>{{ system_info.hostname }}</td></tr>
+        <tr><td>User</td><td>{{ system_info.user }}</td></tr>
+        <tr><td>Architecture</td><td>{{ system_info.architecture }}</td></tr>
+        <tr><td>Uptime</td><td>{{ system_info.uptime }}</td></tr>
+    </table>
+</div>
+{% endif %}
+
+{% if performance_stats %}
+<div class="section">
+    <div class="section-title">PERFORMANCE STATISTICS</div>
+    <table class="kv-table">
+        <tr><td>CPU Usage</td><td>{{ performance_stats.cpu_percent }}%</td></tr>
+        <tr><td>CPU Cores</td><td>{{ performance_stats.cpu_count }}</td></tr>
+        <tr><td>CPU Frequency</td><td>{{ performance_stats.cpu_freq_mhz }} MHz</td></tr>
+        <tr><td>CPU Temperature</td><td>{{ performance_stats.cpu_temp }}</td></tr>
+        <tr><td>RAM Usage</td><td>{{ performance_stats.ram_percent }}% ({{ performance_stats.ram_used_mb }} / {{ performance_stats.ram_total_mb }} MB)</td></tr>
+        <tr><td>Swap Usage</td><td>{{ performance_stats.swap_percent }}% ({{ performance_stats.swap_used_mb }} / {{ performance_stats.swap_total_mb }} MB)</td></tr>
+        <tr><td>Load Average</td><td>{{ performance_stats.load_avg }}</td></tr>
+    </table>
+    {% if charts.cpu_ram %}
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.cpu_ram }}" alt="CPU & RAM Chart">
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if network_info %}
+<div class="section">
+    <div class="section-title">NETWORK INFORMATION</div>
+    <table class="kv-table">
+        <tr><td>Gateway</td><td>{{ network_info.gateway }}</td></tr>
+        <tr><td>Public IP</td><td>{{ network_info.public_ip }}</td></tr>
+        <tr><td>DNS Servers</td><td>{{ network_info.dns_servers | join(', ') }}</td></tr>
+    </table>
+    {% if network_info.interfaces %}
+    <table style="margin-top: 16px;">
+        <thead><tr><th>Interface</th><th>IP</th><th>MAC</th><th>Status</th><th>Speed</th><th>Sent</th><th>Recv</th></tr></thead>
+        <tbody>
+        {% for iface in network_info.interfaces %}
+        <tr>
+            <td>{{ iface.name }}</td>
+            <td>{{ iface.ip }}</td>
+            <td>{{ iface.mac }}</td>
+            <td><span class="badge {{ 'badge-up' if iface.status == 'UP' else 'badge-down' }}">{{ iface.status }}</span></td>
+            <td>{{ iface.speed }} Mbps</td>
+            <td>{{ iface.sent_mb }} MB</td>
+            <td>{{ iface.recv_mb }} MB</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    {% if charts.network_io %}
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.network_io }}" alt="Network I/O Chart">
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if disk_usage %}
+<div class="section">
+    <div class="section-title">DISK USAGE</div>
+    <table>
+        <thead><tr><th>Device</th><th>Mount</th><th>Type</th><th>Total</th><th>Used</th><th>Free</th><th>Usage</th></tr></thead>
+        <tbody>
+        {% for d in disk_usage %}
+        <tr>
+            <td>{{ d.device }}</td>
+            <td>{{ d.mount }}</td>
+            <td>{{ d.fstype }}</td>
+            <td>{{ d.total_gb }} GB</td>
+            <td>{{ d.used_gb }} GB</td>
+            <td>{{ d.free_gb }} GB</td>
+            <td>{{ d.percent }}%</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if charts.disk %}
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.disk }}" alt="Disk Usage Chart">
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if top_processes %}
+<div class="section">
+    <div class="section-title">TOP PROCESSES</div>
+    <table>
+        <thead><tr><th>PID</th><th>Name</th><th>CPU %</th><th>Memory %</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for p in top_processes %}
+        <tr>
+            <td>{{ p.pid }}</td>
+            <td>{{ p.name }}</td>
+            <td>{{ p.cpu_percent }}</td>
+            <td>{{ p.memory_percent }}</td>
+            <td>{{ p.status }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if charts.processes %}
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.processes }}" alt="Process Chart">
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if active_connections %}
+<div class="section">
+    <div class="section-title">ACTIVE CONNECTIONS</div>
+    <table>
+        <thead><tr><th>Proto</th><th>Local</th><th>Remote</th><th>Status</th><th>Process</th></tr></thead>
+        <tbody>
+        {% for c in active_connections %}
+        <tr>
+            <td>{{ c.proto }}</td>
+            <td>{{ c.local }}</td>
+            <td>{{ c.remote }}</td>
+            <td>{{ c.status }}</td>
+            <td>{{ c.process }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="footer">
+    CyberSuite X — Report Engine v1.0 — Generated automatically
+</div>
+</body>
+</html>

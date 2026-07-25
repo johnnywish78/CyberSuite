@@ -1,0 +1,20 @@
+{
+  "theme": "cyberpunk-2077",
+  "active_page": "dashboard",
+  "api_keys": {
+    "anthropic": "",
+    "openai": "",
+    "gemini": ""
+  },
+  "vpn": {
+    "default_profile": null
+  },
+  "terminal": {
+    "shell": "/bin/bash",
+    "font_size": 13
+  },
+  "music": {
+    "volume": 75,
+    "current_track": "Cyberpunk 2077 OST \u2014 Never Fade Away"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "johnny-cybersuite-x",
+  "version": "3.7.0",
+  "description": "Johnny CyberSuite X — All In One Network & System Dashboard",
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev":   "electron . --dev",
+    "build": "electron-builder --linux deb AppImage"
+  },
+  "author": "Johnny",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^30.0.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.johnny.cybersuite",
+    "productName": "Johnny CyberSuite X",
+    "linux": {
+      "target": ["deb", "AppImage"],
+      "category": "Utility"
+    }
+  }
+}
