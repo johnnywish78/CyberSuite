@@ -86,23 +86,69 @@ def _get_local_ip() -> str:
     return ip
 
 def _query_gpu() -> Dict:
-    """utilization %, temp °C via nvidia-smi — with 60s backoff on failure."""
+    """GPU info via nvidia-smi, fallback to lspci/nouveau."""
+
     global _gpu_fail_until
+
     now = time.time()
-    if now < _gpu_fail_until:
-        return {"gpu": 0.0, "gpu_temp": 0.0, "gpu_name": ""}
+
+    # Try NVIDIA telemetry first
+    if now >= _gpu_fail_until:
+        try:
+            out = subprocess.check_output(
+                [
+                    "nvidia-smi",
+                    "--query-gpu=utilization.gpu,temperature.gpu,name",
+                    "--format=csv,noheader,nounits"
+                ],
+                timeout=1,
+                stderr=subprocess.DEVNULL
+            ).decode().strip()
+
+            parts = [p.strip() for p in out.split("\n")[0].split(",")]
+
+            return {
+                "gpu": float(parts[0]),
+                "gpu_temp": float(parts[1]),
+                "gpu_name": parts[2] if len(parts) > 2 else "",
+                "gpu_driver": "nvidia"
+            }
+
+        except:
+            _gpu_fail_until = now + 60
+
+
+    # Fallback: detect GPU from PCI
+    name = ""
+    driver = ""
+
     try:
         out = subprocess.check_output(
-            ["nvidia-smi",
-             "--query-gpu=utilization.gpu,temperature.gpu,name",
-             "--format=csv,noheader,nounits"],
-            timeout=1, stderr=subprocess.DEVNULL).decode().strip()
-        parts = [p.strip() for p in out.split("\n")[0].split(",")]
-        return {"gpu": float(parts[0]), "gpu_temp": float(parts[1]),
-                "gpu_name": parts[2] if len(parts) > 2 else ""}
+            ["lspci", "-nnk"],
+            stderr=subprocess.DEVNULL
+        ).decode()
+
+        lines = out.splitlines()
+
+        for i, line in enumerate(lines):
+            if "VGA compatible controller" in line or "3D controller" in line:
+                name = line.split(": ", 1)[-1]
+
+                for sub in lines[i+1:i+4]:
+                    if "Kernel driver in use:" in sub:
+                        driver = sub.split(":")[-1].strip()
+
+                break
+
     except:
-        _gpu_fail_until = now + 60
-        return {"gpu": 0.0, "gpu_temp": 0.0, "gpu_name": ""}
+        pass
+
+    return {
+        "gpu": 0.0,
+        "gpu_temp": 0.0,
+        "gpu_name": name,
+        "gpu_driver": driver
+    }
 
 @app.get("/api/stats")
 def get_stats():
@@ -112,7 +158,7 @@ def get_stats():
             "disk_percent":0,"disk_used":0,"disk_total":0,
             "cpu_model":_CPU_MODEL,"hostname":_HOSTNAME,"uptime":0}
     if not HAS_PSUTIL: return data
-    data["cpu"]        = psutil.cpu_percent(interval=None)
+    data["cpu"]        = psutil.cpu_percent(interval=0.3)
     mem = psutil.virtual_memory()
     data["ram"]        = mem.percent
     data["ram_used"]   = round(mem.used  / (1024**3), 1)

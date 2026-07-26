@@ -5,23 +5,50 @@
   "main": "desktop/main.js",
   "scripts": {
     "start": "electron .",
-    "dev":   "electron . --dev",
+    "dev": "electron . --dev",
     "build": "electron-builder --linux deb AppImage"
   },
-  "author": "Johnny",
-  "license": "MIT",
-  "dependencies": {
-    "electron": "^30.0.0"
+  "author": {
+    "name": "Johnny Wish",
+    "email": "johnnywish78@gmail.com"
   },
+  "license": "MIT",
+  "dependencies": {},
   "devDependencies": {
+    "electron": "^30.0.0",
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.johnny.cybersuite",
-    "productName": "Johnny CyberSuite X",
-    "linux": {
-      "target": ["deb", "AppImage"],
-      "category": "Utility"
+  "appId": "com.johnny.cybersuite",
+  "productName": "Johnny CyberSuite X",
+
+  "files": [
+    "desktop/**/*",
+    "backend/**/*",
+    "assets/**/*",
+    "config/**/*",
+    "themes.json",
+    "theme_assets.json",
+    "package.json"
+  ],
+
+  "extraResources": [
+    {
+      "from": "assets",
+      "to": "assets"
+    },
+    {
+      "from": "config",
+      "to": "config"
     }
+  ],
+
+  "linux": {
+    "target": [
+      "deb",
+      "AppImage"
+    ],
+    "category": "Utility"
   }
+}
 }
