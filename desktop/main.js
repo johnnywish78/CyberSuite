@@ -1,4 +1,9 @@
 const { app, BrowserWindow, ipcMain, shell, Menu } = require('electron')
+
+app.commandLine.appendSwitch('no-sandbox')
+app.commandLine.appendSwitch('disable-gpu')
+app.commandLine.appendSwitch('disable-software-rasterizer')
+app.commandLine.appendSwitch('disable-dev-shm-usage')
 const path = require('path')
 const { spawn, execSync } = require('child_process')
 const http = require('http')

@@ -37,7 +37,9 @@ from backend.settings import load_settings, save_settings
 
 router = APIRouter(prefix="/api/ai", tags=["ai-center"])
 
-CHATS_DIR = Path(__file__).parent.parent / "storage" / "ai_chats"
+# Runtime writable AI storage (works in Development and AppImage)
+CHATS_DIR = Path.home() / ".config" / "Johnny CyberSuite X" / "ai_chats"
+
 CHATS_DIR.mkdir(parents=True, exist_ok=True)
 
 # tool kinds exposed under POST /tool/{kind}

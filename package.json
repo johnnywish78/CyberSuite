@@ -1,12 +1,13 @@
 {
   "name": "johnny-cybersuite-x",
-  "version": "3.7.0",
-  "description": "Johnny CyberSuite X — All In One Network & System Dashboard",
+  "version": "3.7.1",
+  "description": "Johnny CyberSuite X \u2014 All In One Network & System Dashboard",
   "main": "desktop/main.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
-    "build": "electron-builder --linux deb AppImage"
+    "build": "electron-builder --linux deb AppImage",
+    "postbuild": "sudo ./scripts/fix-sandbox.sh"
   },
   "author": {
     "name": "Johnny Wish",
@@ -19,36 +20,41 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-  "appId": "com.johnny.cybersuite",
-  "productName": "Johnny CyberSuite X",
-
-  "files": [
-    "desktop/**/*",
-    "backend/**/*",
-    "assets/**/*",
-    "config/**/*",
-    "themes.json",
-    "theme_assets.json",
-    "package.json"
-  ],
-
-  "extraResources": [
-    {
-      "from": "assets",
-      "to": "assets"
-    },
-    {
-      "from": "config",
-      "to": "config"
-    }
-  ],
-
-  "linux": {
-    "target": [
-      "deb",
-      "AppImage"
+    "appId": "com.johnny.cybersuite",
+    "productName": "Johnny CyberSuite X",
+    "files": [
+      "desktop/**/*",
+      "package.json"
     ],
-    "category": "Utility"
+    "extraResources": [
+      {
+        "from": "backend",
+        "to": "backend"
+      },
+      {
+        "from": "assets",
+        "to": "assets"
+      },
+      {
+        "from": "config",
+        "to": "config"
+      },
+      {
+        "from": "themes.json",
+        "to": "themes.json"
+      },
+      {
+        "from": "theme_assets.json",
+        "to": "theme_assets.json"
+      }
+    ],
+    "linux": {
+      "target": [
+        "deb",
+        "AppImage"
+      ],
+      "category": "Utility",
+      "executableName": "johnny-cybersuite-x"
+    }
   }
-}
 }

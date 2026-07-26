@@ -36,9 +36,14 @@ try:
 except Exception:
     psutil = None
 
-PROFILES_DIR = Path(__file__).parent.parent / "storage" / "vpn_profiles"
+# Runtime writable storage (works in Development and AppImage)
+APP_DATA = Path.home() / ".config" / "Johnny CyberSuite X" / "vpn_profiles"
+
+PROFILES_DIR = APP_DATA
 PROFILES_DIR.mkdir(parents=True, exist_ok=True)
+
 PROFILES_FILE = PROFILES_DIR / "profiles.json"
+
 IMPORT_DIR = PROFILES_DIR / "configs"
 IMPORT_DIR.mkdir(parents=True, exist_ok=True)
 

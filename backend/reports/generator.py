@@ -17,7 +17,7 @@ from .charts import (
     generate_process_chart,
 )
 
-REPORTS_DIR = Path(__file__).parent.parent / "storage" / "reports"
+REPORTS_DIR = Path.home() / ".config" / "Johnny CyberSuite X" / "reports"
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 

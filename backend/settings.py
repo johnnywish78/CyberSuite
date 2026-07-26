@@ -1,7 +1,17 @@
 import json
 from pathlib import Path
 
-SETTINGS_FILE     = Path(__file__).parent / "settings.json"
+# Writable runtime settings (works inside AppImage)
+SETTINGS_FILE = Path.home() / ".config" / "Johnny CyberSuite X" / "settings.json"
+
+if not SETTINGS_FILE.exists():
+    src = Path(__file__).parent / "settings.json"
+    if src.exists():
+        SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        SETTINGS_FILE.write_text(
+            src.read_text(encoding="utf-8"),
+            encoding="utf-8"
+        )
 THEMES_FILE       = Path(__file__).parent.parent / "themes.json"
 THEME_ASSETS_FILE = Path(__file__).parent.parent / "theme_assets.json"
 
