@@ -4,21 +4,29 @@ set -e
 
 echo "=== Repacking AppImage ==="
 
-cd "$(dirname "$0")/.."
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT_DIR"
+
+VERSION=$(cat VERSION)
 
 APPIMAGE_TOOL="./appimagetool.AppImage"
-OUTPUT="dist/Johnny CyberSuite X-3.7.1.AppImage"
+OUTPUT="dist/Johnny CyberSuite X-${VERSION}.AppImage"
 
 if [ ! -f "$APPIMAGE_TOOL" ]; then
     echo "appimagetool not found"
     exit 1
 fi
 
+if [ ! -d "dist/squashfs-root" ]; then
+    echo "squashfs-root missing"
+    exit 1
+fi
+
 rm -f "$OUTPUT"
 
 "$APPIMAGE_TOOL" \
-dist/squashfs-root \
-"$OUTPUT"
+    dist/squashfs-root \
+    "$OUTPUT"
 
 chmod +x "$OUTPUT"
 

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <component type="desktop-application">
 
   <id>com.johnny.cybersuite</id>
 
   <name>Johnny CyberSuite X</name>
 
-  <summary>
-    All In One Network & System Dashboard
-  </summary>
+  <summary>All In One Network &amp; System Dashboard</summary>
 
   <description>
     <p>
@@ -20,7 +19,13 @@
     johnny-cybersuite-x.desktop
   </launchable>
 
+  <url type="homepage">https://github.com/johnnywish78/CyberSuite</url>
+
   <metadata_license>MIT</metadata_license>
+
+  <project_license>MIT</project_license>
+
+  <developer_name>Johnny Wish</developer_name>
 
   <provides>
     <binary>johnny-cybersuite-x</binary>
