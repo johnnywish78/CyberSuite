@@ -1,0 +1,349 @@
+const { app, BrowserWindow, ipcMain, shell, Menu } = require('electron')
+
+app.commandLine.appendSwitch('disable-gpu')
+app.commandLine.appendSwitch('disable-software-rasterizer')
+app.commandLine.appendSwitch('disable-dev-shm-usage')
+const path = require('path')
+const { spawn, execSync } = require('child_process')
+const http = require('http')
+const fs = require('fs')
+
+const BACKEND_PORT = 8765
+
+const isDev = !app.isPackaged
+
+const PROJECT_ROOT = isDev
+  ? path.join(__dirname, '..')
+  : process.resourcesPath
+
+const BACKEND_ROOT = path.join(PROJECT_ROOT, 'backend')
+
+let mainWindow = null
+let backendProc = null
+
+
+function killPort(port) {
+  try {
+    const pids = execSync(
+      `lsof -ti tcp:${port} 2>/dev/null || true`
+    ).toString().trim()
+
+    if (pids) {
+      pids.split('\n').forEach(pid => {
+        try {
+          process.kill(parseInt(pid), 'SIGTERM')
+        } catch {}
+      })
+    }
+  } catch {}
+}
+
+
+function startBackend() {
+
+  killPort(BACKEND_PORT)
+
+  console.log('[main] Project root:', PROJECT_ROOT)
+  console.log('[main] Backend root:', BACKEND_ROOT)
+
+  if (!fs.existsSync(BACKEND_ROOT)) {
+    console.error('[main] Backend folder not found')
+    return
+  }
+
+
+  const venvPy = path.join(
+    PROJECT_ROOT,
+    'venv',
+    'bin',
+    'python'
+  )
+
+  const pyBin = fs.existsSync(venvPy)
+    ? venvPy
+    : 'python3'
+
+
+  backendProc = spawn(
+    pyBin,
+    [
+      '-m',
+      'uvicorn',
+      'backend.app:app',
+      '--host',
+      '127.0.0.1',
+      '--port',
+      String(BACKEND_PORT),
+      '--log-level',
+      'warning'
+    ],
+    {
+      cwd: PROJECT_ROOT,
+      env: {
+        ...process.env,
+        PYTHONPATH: PROJECT_ROOT
+      },
+      stdio: [
+        'ignore',
+        'pipe',
+        'pipe'
+      ]
+    }
+  )
+
+
+  backendProc.stdout.on(
+    'data',
+    d => console.log('[backend]', d.toString().trim())
+  )
+
+  backendProc.stderr.on(
+    'data',
+    d => console.error('[backend]', d.toString().trim())
+  )
+
+  backendProc.on(
+    'exit',
+    code => console.log('[backend] exited', code)
+  )
+
+
+  console.log(
+    `[main] Backend PID: ${backendProc.pid}`
+  )
+}
+
+
+
+function waitForBackend(retries = 30) {
+
+  return new Promise((resolve, reject) => {
+
+    const check = (n) => {
+
+      http.get(
+        `http://127.0.0.1:${BACKEND_PORT}/api/health`,
+        res => {
+
+          res.resume()
+          resolve()
+
+        }
+      ).on('error', () => {
+
+        if (n <= 0) {
+          reject(new Error('Backend timeout'))
+          return
+        }
+
+        setTimeout(
+          () => check(n - 1),
+          400
+        )
+
+      })
+
+    }
+
+    check(retries)
+
+  })
+}
+
+
+
+function createWindow() {
+
+  mainWindow = new BrowserWindow({
+
+    width: 1320,
+    height: 820,
+
+    minWidth: 1100,
+    minHeight: 680,
+
+    frame: false,
+
+    backgroundColor: '#080810',
+
+    title:
+      'Johnny CyberSuite X — All In One',
+
+    webPreferences: {
+
+      preload:
+        path.join(__dirname, 'preload.js'),
+
+      nodeIntegration: false,
+
+      contextIsolation: true,
+
+      backgroundThrottling: false
+
+    }
+
+  })
+
+
+  mainWindow.webContents.openDevTools({mode:'detach'});
+  mainWindow.webContents.on('did-finish-load', () => console.log('[MAIN] Renderer finished loading'));
+  mainWindow.webContents.on('render-process-gone', (e,d) => console.log('[MAIN] Renderer crashed:', d));
+  mainWindow.webContents.on('console-message', (e,l,m) => console.log('[RENDER]', m));
+
+  mainWindow.loadFile(
+    path.join(
+      __dirname,
+      'renderer',
+      'index.html'
+    ),
+    {
+      query: {
+        port: String(BACKEND_PORT)
+      }
+    }
+  )
+
+
+  if (true) {
+    mainWindow.webContents.openDevTools({
+      mode: 'detach'
+    })
+  }
+
+
+  mainWindow.on(
+    'closed',
+    () => {
+      mainWindow = null
+    }
+  )
+}
+
+
+
+ipcMain.on(
+  'window:minimize',
+  () => mainWindow?.minimize()
+)
+
+ipcMain.on(
+  'window:maximize',
+  () => {
+
+    if (mainWindow?.isMaximized())
+      mainWindow.unmaximize()
+    else
+      mainWindow?.maximize()
+
+  }
+)
+
+ipcMain.on(
+  'window:close',
+  () => mainWindow?.close()
+)
+
+
+ipcMain.on(
+  'window:fullscreen',
+  () =>
+    mainWindow?.setFullScreen(
+      !mainWindow.isFullScreen()
+    )
+)
+
+
+ipcMain.handle(
+  'app:version',
+  () => app.getVersion()
+)
+
+
+ipcMain.handle(
+  'app:port',
+  () => BACKEND_PORT
+)
+
+
+ipcMain.handle(
+  'shell:open',
+  (_, url) => shell.openExternal(url)
+)
+
+
+
+app.commandLine.appendSwitch('no-sandbox');
+
+app.whenReady().then(async () => {
+
+  Menu.setApplicationMenu(null)
+
+  startBackend()
+
+
+  try {
+
+    await waitForBackend()
+
+    console.log('[main] Backend ready ✓')
+
+  } catch(e) {
+
+    console.error(
+      '[main] Backend failed:',
+      e.message
+    )
+
+  }
+
+
+  createWindow()
+
+
+  app.on(
+    'activate',
+    () => {
+
+      if (
+        BrowserWindow.getAllWindows().length === 0
+      )
+        createWindow()
+
+    }
+  )
+
+})
+
+
+
+app.on(
+  'window-all-closed',
+  () => {
+
+    if (backendProc)
+      backendProc.kill('SIGTERM')
+
+    try {
+      killPort(BACKEND_PORT)
+    } catch {}
+
+    if (process.platform !== 'darwin')
+      app.quit()
+
+  }
+)
+
+
+app.on(
+  'before-quit',
+  () => {
+
+    if (backendProc)
+      backendProc.kill('SIGTERM')
+
+    try {
+      killPort(BACKEND_PORT)
+    } catch {}
+
+  }
+)

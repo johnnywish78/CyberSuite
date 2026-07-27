@@ -186,6 +186,7 @@ function createWindow() {
   })
 
 
+
   mainWindow.loadFile(
     path.join(
       __dirname,
@@ -265,6 +266,7 @@ ipcMain.handle(
   'shell:open',
   (_, url) => shell.openExternal(url)
 )
+
 
 
 

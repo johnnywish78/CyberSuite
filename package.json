@@ -1,13 +1,13 @@
 {
   "name": "johnny-cybersuite-x",
   "version": "3.7.1",
-  "description": "Johnny CyberSuite X \u2014 All In One Network & System Dashboard",
+  "description": "Johnny CyberSuite X — All In One Network & System Dashboard",
   "main": "desktop/main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electron . --no-sandbox --disable-gpu --disable-software-rasterizer --disable-dev-shm-usage",
     "dev": "electron . --dev",
     "build": "electron-builder --linux deb AppImage",
-    "postbuild": "sudo ./scripts/fix-sandbox.sh"
+    "release": "npm run build && sudo ./scripts/fix-sandbox.sh && ./scripts/repack-appimage.sh"
   },
   "author": {
     "name": "Johnny Wish",
@@ -54,7 +54,9 @@
         "AppImage"
       ],
       "category": "Utility",
-      "executableName": "johnny-cybersuite-x"
+      "executableName": "johnny-cybersuite-x",
+      "asar": true,
+      "icon": "build"
     }
   }
 }
