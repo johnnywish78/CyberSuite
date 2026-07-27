@@ -7,7 +7,7 @@
     "start": "electron . --no-sandbox --disable-gpu --disable-software-rasterizer --disable-dev-shm-usage",
     "dev": "electron . --dev",
     "build": "electron-builder --linux deb AppImage",
-    "release": "npm run build && sudo ./scripts/fix-sandbox.sh && ./scripts/repack-appimage.sh"
+    "release": "bash scripts/full-release.sh"
   },
   "author": {
     "name": "Johnny Wish",
