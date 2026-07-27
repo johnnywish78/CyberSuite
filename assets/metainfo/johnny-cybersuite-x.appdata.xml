@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+
+  <id>com.johnny.cybersuite</id>
+
+  <name>Johnny CyberSuite X</name>
+
+  <summary>
+    All In One Network & System Dashboard
+  </summary>
+
+  <description>
+    <p>
+      Johnny CyberSuite X is a cyberpunk styled desktop dashboard
+      for system monitoring, network tools and automation.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">
+    johnny-cybersuite-x.desktop
+  </launchable>
+
+  <metadata_license>MIT</metadata_license>
+
+  <provides>
+    <binary>johnny-cybersuite-x</binary>
+  </provides>
+
+  <categories>
+    <category>Utility</category>
+  </categories>
+
+</component>
