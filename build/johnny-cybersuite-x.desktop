@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Johnny CyberSuite X
+Exec=johnny-cybersuite-x --no-sandbox --disable-gpu --disable-software-rasterizer --disable-dev-shm-usage %U
+Terminal=false
+Type=Application
+Icon=johnny-cybersuite-x
+StartupWMClass=Johnny CyberSuite X
+Comment=Johnny CyberSuite X — All In One Network & System Dashboard
+Categories=Utility;
