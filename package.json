@@ -51,6 +51,10 @@
       {
         "from": "theme_assets.json",
         "to": "theme_assets.json"
+      },
+      {
+        "from": "version.json",
+        "to": "version.json"
       }
     ],
     "linux": {

@@ -21,7 +21,19 @@ from backend.sys_monitor import router as sys_monitor_router
 from backend.ai.router import router as ai_router
 from backend.reports.router import router as reports_router
 
-app = FastAPI(title="Johnny CyberSuite X", version="3.7.0")
+
+def get_app_version():
+    try:
+        root = Path(__file__).resolve().parent.parent
+        with open(root / "version.json") as f:
+            return json.load(f).get("version", "unknown")
+    except Exception:
+        return "unknown"
+
+
+APP_VERSION = get_app_version()
+
+app = FastAPI(title="Johnny CyberSuite X", version=APP_VERSION)
 app.add_middleware(CORSMiddleware, allow_origins=["*"],
     allow_methods=["*"], allow_headers=["*"])
 
@@ -52,7 +64,11 @@ _local_ip  = {"ip": "127.0.0.1", "ts": 0.0}
 #  HEALTH
 # ═══════════════════════════════════════════════════════════════════════════
 @app.get("/api/health")
-def health(): return {"ok": True, "version": "3.7.0"}
+def health():
+    return {
+        "ok": True,
+        "version": APP_VERSION
+    }
 
 # ═══════════════════════════════════════════════════════════════════════════
 #  SYSTEM STATS
