@@ -1,0 +1,52 @@
+name: Release Build Validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install pytest
+
+      - name: Build Electron packages
+        run: npm run build
+
+      - name: Validate artifacts
+        run: |
+          test -f dist/*.AppImage
+          test -f dist/*.deb
+          test -d dist/linux-unpacked
+          test -d dist/linux-unpacked/resources/backend
+          test -f dist/linux-unpacked/resources/app.asar
+
+      - name: Run test suite
+        run: pytest tests -v
