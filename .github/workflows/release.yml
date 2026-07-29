@@ -37,6 +37,11 @@ jobs:
       - name: Install Node dependencies
         run: npm install
 
+      - name: Run backend tests
+        run: |
+          source backend/venv/bin/activate
+          pytest tests
+
       - name: Build Electron packages
         run: npm run build -- --publish never
 
