@@ -1,0 +1,72 @@
+{
+  "name": "johnny-cybersuite-x",
+  "version": "3.8.3",
+  "description": "Johnny CyberSuite X \u2014 All In One Network & System Dashboard",
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "electron . --no-sandbox --disable-gpu --disable-software-rasterizer --disable-dev-shm-usage",
+    "dev": "electron . --dev",
+    "build": "electron-builder --linux deb AppImage",
+    "release": "bash scripts/full-release.sh"
+  },
+  "author": {
+    "name": "Johnny Wish",
+    "email": "johnnywish78@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.johnny.cybersuite",
+    "productName": "Johnny CyberSuite X",
+    "publish": null,
+    "files": [
+      "desktop/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**",
+          "!**/*.pyc"
+        ]
+      },
+      {
+        "from": "assets",
+        "to": "assets"
+      },
+      {
+        "from": "config",
+        "to": "config"
+      },
+      {
+        "from": "themes.json",
+        "to": "themes.json"
+      },
+      {
+        "from": "theme_assets.json",
+        "to": "theme_assets.json"
+      },
+      {
+        "from": "version.json",
+        "to": "version.json"
+      }
+    ],
+    "linux": {
+      "target": [
+        "deb",
+        "AppImage"
+      ],
+      "category": "Utility",
+      "executableName": "johnny-cybersuite-x",
+      "asar": true,
+      "icon": "build"
+    }
+  }
+}
