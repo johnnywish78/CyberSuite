@@ -4,32 +4,48 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
 
+
+env:
+  GH_TOKEN: ""
+
+
 jobs:
+
   build-test:
 
+    name: Build and Validate Release
+
     runs-on: ubuntu-latest
+
 
     steps:
 
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: npm
+
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+          cache: pip
+
 
       - name: Install Node dependencies
         run: npm install
+
 
       - name: Install Python dependencies
         run: |
@@ -37,16 +53,56 @@ jobs:
           pip install -r backend/requirements.txt
           pip install pytest
 
+
       - name: Build Electron packages
         run: npm run build
+        env:
+          GH_TOKEN: ""
+          CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Validate artifacts
+
+      - name: Validate AppImage
         run: |
+          ls -lah dist
           test -f dist/*.AppImage
+          echo "AppImage OK"
+
+
+      - name: Validate DEB package
+        run: |
           test -f dist/*.deb
+          echo "DEB OK"
+
+
+      - name: Validate unpacked application
+        run: |
           test -d dist/linux-unpacked
+          echo "linux-unpacked OK"
+
+
+      - name: Validate backend
+        run: |
           test -d dist/linux-unpacked/resources/backend
+          echo "Backend OK"
+
+
+      - name: Validate app.asar
+        run: |
           test -f dist/linux-unpacked/resources/app.asar
+          echo "ASAR OK"
+
+
+      - name: Check artifact sizes
+        run: |
+          APPIMAGE=$(ls dist/*.AppImage)
+          DEB=$(ls dist/*.deb)
+
+          test $(stat -c%s "$APPIMAGE") -gt 1048576
+          test $(stat -c%s "$DEB") -gt 1048576
+
+          echo "Artifact sizes OK"
+
 
       - name: Run test suite
-        run: pytest tests -v
+        run: |
+          pytest tests -v
