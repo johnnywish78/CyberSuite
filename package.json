@@ -1,7 +1,7 @@
 {
   "name": "johnny-cybersuite-x",
   "version": "3.8.1",
-  "description": "Johnny CyberSuite X — All In One Network & System Dashboard",
+  "description": "Johnny CyberSuite X \u2014 All In One Network & System Dashboard",
   "main": "desktop/main.js",
   "scripts": {
     "start": "electron . --no-sandbox --disable-gpu --disable-software-rasterizer --disable-dev-shm-usage",
@@ -29,7 +29,12 @@
     "extraResources": [
       {
         "from": "backend",
-        "to": "backend"
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**",
+          "!**/*.pyc"
+        ]
       },
       {
         "from": "assets",
