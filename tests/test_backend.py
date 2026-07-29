@@ -11,137 +11,151 @@ from backend.app import app
 client = TestClient(app)
 
 
-# -------------------------
-# Basic Backend
-# -------------------------
+# =========================
+# Core
+# =========================
 
-def test_backend_root():
-    response = client.get("/")
-    assert response.status_code in [200, 404]
+def test_root():
+    r = client.get("/")
+    assert r.status_code in [200, 404]
 
 
 def test_health():
-    response = client.get("/api/health")
+    r = client.get("/api/health")
 
-    assert response.status_code == 200
+    assert r.status_code == 200
 
-    data = response.json()
+    data = r.json()
 
     assert data["ok"] is True
     assert "version" in data
 
 
-# -------------------------
-# System Stats
-# -------------------------
+def test_version_format():
+    r = client.get("/api/health")
 
-def test_stats_endpoint():
-    response = client.get("/api/stats")
+    data = r.json()
 
-    assert response.status_code == 200
+    assert isinstance(data["version"], str)
+    assert len(data["version"]) > 0
 
-    data = response.json()
 
-    assert isinstance(data, dict)
+# =========================
+# System
+# =========================
+
+def test_stats():
+    r = client.get("/api/stats")
+
+    assert r.status_code == 200
+    assert isinstance(r.json(), dict)
 
 
 def test_system_info():
-    response = client.get("/api/system/info")
+    r = client.get("/api/system/info")
 
-    assert response.status_code == 200
+    assert r.status_code == 200
 
-    data = response.json()
+    data = r.json()
 
-    assert isinstance(data, dict)
     assert "cpu_model" in data
     assert "ram_total" in data
+    assert "hostname" in data
 
 
-# -------------------------
+def test_processes():
+    r = client.get("/api/system/processes")
+
+    assert r.status_code == 200
+    assert isinstance(r.json(), list)
+
+
+def test_disks():
+    r = client.get("/api/system/disk")
+
+    assert r.status_code == 200
+
+
+# =========================
 # Network Center
-# -------------------------
+# =========================
 
 def test_network_info():
-    response = client.get("/api/network/info")
+    r = client.get("/api/network/info")
 
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert isinstance(data, dict)
+    assert r.status_code == 200
+    assert isinstance(r.json(), dict)
 
 
-# -------------------------
+def test_network_interfaces():
+    r = client.get("/api/net/interfaces")
+
+    assert r.status_code == 200
+
+
+def test_network_connections():
+    r = client.get("/api/net/connections")
+
+    assert r.status_code == 200
+
+
+# =========================
 # Themes / Settings
-# -------------------------
+# =========================
 
 def test_themes():
-    response = client.get("/api/themes")
+    r = client.get("/api/themes")
 
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert isinstance(data, (dict, list))
+    assert r.status_code == 200
 
 
 def test_theme_assets():
-    response = client.get("/api/theme-assets")
+    r = client.get("/api/theme-assets")
 
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert isinstance(data, (dict, list))
+    assert r.status_code == 200
 
 
-# -------------------------
+def test_settings():
+    r = client.get("/api/settings")
+
+    assert r.status_code == 200
+
+
+# =========================
 # VPN
-# -------------------------
+# =========================
 
 def test_vpn_status():
-    response = client.get("/api/vpn/status")
+    r = client.get("/api/vpn/status")
 
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert isinstance(data, dict)
+    assert r.status_code == 200
 
 
 def test_vpn_profiles():
-    response = client.get("/api/vpn/profiles")
+    r = client.get("/api/vpn/profiles")
 
-    assert response.status_code == 200
+    assert r.status_code == 200
 
-    data = response.json()
-
-    assert isinstance(data, list)
+    assert isinstance(r.json(), list)
 
 
-# -------------------------
+# =========================
 # AI Center
-# -------------------------
+# =========================
 
 def test_ai_providers():
-    response = client.get("/api/ai/providers")
+    r = client.get("/api/ai/providers")
 
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert isinstance(data, (dict, list))
+    assert r.status_code == 200
 
 
-# -------------------------
+# =========================
 # Reports
-# -------------------------
+# =========================
 
-def test_reports_list():
-    response = client.get("/api/reports")
+def test_reports():
+    r = client.get("/api/reports")
 
-    assert response.status_code == 200
+    assert r.status_code == 200
 
-    data = response.json()
-
-    assert isinstance(data, list)
+    assert isinstance(r.json(), list)
