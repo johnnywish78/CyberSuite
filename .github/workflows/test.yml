@@ -1,0 +1,41 @@
+name: CyberSuite Tests
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+
+jobs:
+  tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+
+      - name: Install backend dependencies
+        run: |
+          python -m venv backend/venv
+          source backend/venv/bin/activate
+          pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+
+      - name: Run test suite
+        run: |
+          source backend/venv/bin/activate
+          pytest tests -v
