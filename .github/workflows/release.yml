@@ -45,8 +45,8 @@ jobs:
       - name: Build Electron packages
         run: npm run build -- --publish never
 
-        - name: Verify build artifacts
-          run: |
+      - name: Verify build artifacts
+        run: |
           echo "Checking release files..."
           ls -lh dist
 
@@ -63,3 +63,12 @@ jobs:
           test -f dist/*.deb
 
           echo "Artifacts verified successfully."
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.AppImage
+            dist/*.deb
+          generate_release_notes: true
+          overwrite_files: true
