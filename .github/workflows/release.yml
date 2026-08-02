@@ -50,14 +50,14 @@ jobs:
           echo "Checking release files..."
           ls -lh dist
 
-          echo "=== linux-unpacked ==="
-          du -sh dist/linux-unpacked/*
+          echo "=== linux-unpacked size ==="
+          du -sh dist/linux-unpacked
 
-          echo "=== resources ==="
-          du -sh dist/linux-unpacked/resources/*
+          echo "=== resources size ==="
+          du -sh dist/linux-unpacked/resources
 
           echo "=== largest files ==="
-          find dist/linux-unpacked -type f -printf "%s %p\n" | sort -nr | head -20
+          du -ah dist/linux-unpacked | sort -rh | head -20
 
           test -f dist/*.AppImage
           test -f dist/*.deb
