@@ -1,6 +1,6 @@
 {
   "name": "johnny-cybersuite-x",
-  "version": "3.9.0-dev",
+  "version": "3.9.0",
   "description": "Johnny CyberSuite X — All In One Network & System Dashboard",
   "main": "desktop/main.js",
   "scripts": {
