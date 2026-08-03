@@ -1,7 +1,7 @@
 {
   "name": "johnny-cybersuite-x",
-  "version": "3.8.4",
-  "description": "Johnny CyberSuite X \u2014 All In One Network & System Dashboard",
+  "version": "3.9.0-dev",
+  "description": "Johnny CyberSuite X — All In One Network & System Dashboard",
   "main": "desktop/main.js",
   "scripts": {
     "start": "electron . --no-sandbox --disable-gpu --disable-software-rasterizer --disable-dev-shm-usage",
