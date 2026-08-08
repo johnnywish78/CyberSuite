@@ -4,7 +4,8 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
 
 echo -e "\033[1;33m╔══════════════════════════════════╗\033[0m"
-echo -e "\033[1;33m║   Johnny CyberSuite X v3.7.0     ║\033[0m"
+VERSION="$(cat VERSION 2>/dev/null || echo "unknown")"
+echo -e "\033[1;33m║   Johnny CyberSuite X v${VERSION}     ║\033[0m"
 echo -e "\033[1;33m╚══════════════════════════════════╝\033[0m"
 
 # Kill any old process on port 8765
