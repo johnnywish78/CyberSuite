@@ -75,6 +75,8 @@ async function init() {
   setInterval(loadGateway, 60000)
   refreshIP()
   setInterval(refreshIP, 300000)      // public IP — cached server-side (5 min)
+  refreshVPNHealth()
+  setInterval(refreshVPNHealth, 60000)
   pingLoop()
   initMonitor()
   loadSettings()
@@ -1064,6 +1066,60 @@ window.ncDiagnostics = async function() {
     ncSet('nc-diag-result', html)
   } catch(e){ ncErr('nc-diag-result', e.message) }
   finally { ncBusy('nc-diag-btn', false) }
+}
+
+
+/* ── VPN STATUS ── */
+window.ncVPNStatus = async function() {
+  ncBusy('nc-vpn-btn', true)
+
+  try {
+    const r = await api('GET','/api/net/vpn-status')
+
+    let html = `
+    <div class="nc-scroll">
+    <table class="nc-table">
+    <tbody>
+
+    <tr>
+      <td>Status</td>
+      <td>
+        ${
+          r.proxy && r.proxy.active
+          ? '<span class="nc-tag nc-ok">ACTIVE</span>'
+          : '<span class="nc-tag nc-bad">OFF</span>'
+        }
+      </td>
+    </tr>
+
+    <tr>
+      <td>Public IP</td>
+      <td class="nc-mono">${esc(r.public_ip || 'unknown')}</td>
+    </tr>
+
+    <tr>
+      <td>IPv6</td>
+      <td>${r.ipv6 ? '✅ enabled' : '❌ disabled'}</td>
+    </tr>
+
+    <tr>
+      <td>Cloudflare</td>
+      <td>${r.cloudflare_like ? '☁️ detected' : '—'}</td>
+    </tr>
+
+    </tbody>
+    </table>
+    </div>
+    `
+
+    ncSet('nc-vpn-result', html)
+
+  } catch(e) {
+    ncErr('nc-vpn-result', e.message)
+  }
+  finally {
+    ncBusy('nc-vpn-btn', false)
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2246,6 +2302,40 @@ function outAppend(id,txt,err=false){
   const s=document.createElement('span'); s.style.color=err?'var(--danger)':'var(--net)'; s.textContent=txt
   el.appendChild(s); el.scrollTop=el.scrollHeight
 }
+async function refreshVPNHealth() {
+  try {
+    const r = await api('GET', '/api/net/vpn-status')
+    const active = !!(r.proxy && r.proxy.active)
+
+    const statusEl = document.getElementById('vpn-card-status')
+    if (!statusEl) return
+
+    const status = active ? 'ACTIVE' : 'OFF'
+    const color = active ? 'var(--net)' : 'var(--danger)'
+    const ip = r.public_ip || 'unknown'
+    const ipv6 = r.ipv6 ? 'Enabled' : 'Disabled'
+    const cloudflare = r.cloudflare_like ? 'Detected' : '—'
+
+    statusEl.innerHTML = `
+      <div style="color:${color};font-weight:700">
+        VPN: ${status}
+      </div>
+      <div style="margin-top:3px">
+        IP: ${esc(ip)}
+      </div>
+      <div style="margin-top:2px">
+        IPv6: ${ipv6} · Cloudflare: ${cloudflare}
+      </div>
+    `
+  } catch (e) {
+    const statusEl = document.getElementById('vpn-card-status')
+    if (!statusEl) return
+
+    statusEl.textContent = 'VPN: Health check unavailable'
+    statusEl.style.color = 'var(--dim)'
+  }
+}
+
 async function api(method,path,body){
   const opts={method,headers:{'Content-Type':'application/json'}}
   if(body) opts.body=JSON.stringify(body)
@@ -2429,6 +2519,7 @@ window.app = {
   ncInterfaces: (...a) => window.ncInterfaces(...a),
   ncWifi:       (...a) => window.ncWifi(...a),
   ncDiagnostics:(...a) => window.ncDiagnostics(...a),
+  ncVPNStatus:  (...a) => window.ncVPNStatus(...a),
   refreshIP:    (...a) => window.refreshIP(...a),
   // System Monitor
   monTab:       (...a) => window.monTab(...a),

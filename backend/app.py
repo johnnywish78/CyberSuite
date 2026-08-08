@@ -233,7 +233,7 @@ async def public_ip():
     now = time.time()
     if _pub_ip["ip"] and (now - _pub_ip["ts"] < 300):
         return {"ip": _pub_ip["ip"], "cached": True}
-    for url in ("https://api.ipify.org", "https://ifconfig.me/ip", "https://icanhazip.com"):
+    for url in ("https://ifconfig.me/ip", "https://icanhazip.com", "https://api.ipify.org"):
         try:
             r = await asyncio.wait_for(asyncio.create_subprocess_exec(
                 "curl", "-s", "--max-time", "4", url,

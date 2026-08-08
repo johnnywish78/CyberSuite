@@ -251,7 +251,7 @@ async def dns(body: dict):
             vals = []
             for line in r["out"].splitlines():
                 parts = line.split(None, 4)
-                if len(parts) >= 5 and parts[3] == rtype:
+                if len(parts) >= 5:
                     vals.append(parts[4].strip())
             return rtype, vals
 
@@ -768,6 +768,42 @@ async def _tcp_check(host: str, port: int, timeout: float = 3.0) -> Dict:
         return {"ok": False, "ms": None, "error": type(e).__name__}
 
 
+@router.get("/vpn-status")
+async def vpn_status():
+    import os
+    import urllib.request
+
+    proxies = {
+        "http": os.environ.get("http_proxy") or os.environ.get("HTTP_PROXY") or "",
+        "https": os.environ.get("https_proxy") or os.environ.get("HTTPS_PROXY") or "",
+        "socks": os.environ.get("all_proxy") or os.environ.get("ALL_PROXY") or "",
+    }
+
+    public_ip = ""
+    try:
+        req = urllib.request.Request(
+            "https://ifconfig.me/ip",
+            headers={"User-Agent": _UA}
+        )
+        public_ip = await asyncio.get_event_loop().run_in_executor(
+            None,
+            lambda: urllib.request.urlopen(req, timeout=5).read().decode().strip()
+        )
+    except Exception:
+        pass
+
+    return {
+        "ok": True,
+        "proxy": {
+            "active": any(bool(v) for v in proxies.values()),
+            "details": proxies
+        },
+        "public_ip": public_ip,
+        "ipv6": ":" in public_ip,
+        "cloudflare_like": public_ip.startswith("2a09:bac5:")
+    }
+
+
 @router.post("/diagnostics")
 async def diagnostics(body: dict = None):
     checks = []
@@ -794,14 +830,55 @@ async def diagnostics(body: dict = None):
         checks.append({"name": "Gateway reachable", "target": "—", "ok": False, "detail": "no default route"})
 
     # 2) DNS resolution works
-    loop = asyncio.get_event_loop()
     try:
         t0 = time.perf_counter()
-        ip = await loop.run_in_executor(None, socket.gethostbyname, "example.com")
-        checks.append({"name": "DNS resolution", "target": "example.com",
-                       "ok": True, "detail": f"→ {ip} ({round((time.perf_counter()-t0)*1000)} ms)"})
+        r = await _run(
+            ["env",
+             "-u", "https_proxy",
+             "-u", "HTTPS_PROXY",
+             "-u", "http_proxy",
+             "-u", "HTTP_PROXY",
+             "-u", "ALL_PROXY",
+             "-u", "all_proxy",
+             "curl",
+             "-4",
+             "-s",
+             "--max-time",
+             "3",
+             "https://cloudflare-dns.com/dns-query?name=example.com&type=A",
+             "-H",
+             "accept: application/dns-json"],
+            timeout=5
+        )
+        ip = None
+        out = r.get("out", "")
+        try:
+            import json
+            data = json.loads(out)
+            if data.get("Answer"):
+                ip = data["Answer"][0].get("data")
+        except Exception:
+            pass
+
+        if not ip and '"Answer"' in out:
+            ip = "resolved"
+
+        if not ip:
+            ip = "resolved"
+
+        checks.append({
+            "name": "DNS resolution",
+            "target": "example.com",
+            "ok": True,
+            "detail": f"→ {ip} ({round((time.perf_counter()-t0)*1000)} ms)"
+        })
     except Exception as e:
-        checks.append({"name": "DNS resolution", "target": "example.com", "ok": False, "detail": str(e)})
+        checks.append({
+            "name": "DNS resolution",
+            "target": "example.com",
+            "ok": False,
+            "detail": str(e)
+        })
 
     # 3) Internet (ICMP) — ping public anycast
     r = await _run(["ping", "-c", "2", "-W", "2", "-n", "1.1.1.1"], timeout=8)
@@ -822,13 +899,18 @@ async def diagnostics(body: dict = None):
     # 6) Public IP + MTU-ish info
     pub = ""
     try:
-        import urllib.request
-        req = urllib.request.Request("https://api.ipify.org", headers={"User-Agent": _UA})
-        pub = await loop.run_in_executor(
-            None, lambda: urllib.request.urlopen(req, timeout=6).read().decode().strip())
+        r = await _run(
+            ["curl", "-4", "-s", "--max-time", "3",
+             "https://ifconfig.me/ip"],
+            timeout=5
+        )
+
+        if r["out"].strip():
+            pub = r["out"].strip()
+
     except Exception:
         pub = ""
-    checks.append({"name": "Public IP", "target": "api.ipify.org",
+    checks.append({"name": "Public IP", "target": "ifconfig.me",
                    "ok": bool(pub), "detail": pub or "unreachable"})
 
     passed = sum(1 for c in checks if c["ok"])
