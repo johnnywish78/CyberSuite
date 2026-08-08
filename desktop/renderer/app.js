@@ -1326,7 +1326,7 @@ function buildVpnProfile(proto) {
 
 function setVpnStatus(on, name='') {
   G.vpnConnected=on; G.vpnName=name
-  const col=on?'var(--net)':'var(--danger)', txt=on?'CONNECTED':'DISCONNECTED'
+  const col=on?'var(--net)':'var(--dim)', txt=on?'CONNECTED':'DISCONNECTED'
   const dot=document.getElementById('vpn-big-dot'); if(dot) dot.style.color=col
   const st=document.getElementById('vpn-big-status'); if(st){st.textContent=txt;st.style.color=col}
   const btn=document.getElementById('vpn-toggle'); if(btn) btn.textContent=on?'✖ Disconnect':'⚡ Connect'
