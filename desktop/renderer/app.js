@@ -21,6 +21,14 @@ const G = {                      // global app state
   vpnPollTimer:null, vpnKS:false, vpnAC:false, vpnACProfile:null,
   procData:[], procSort:{key:'cpu',dir:-1}, procAuto:true, procPrimed:false,
   svcData:[], svcCounts:{}, svcSort:{key:'name',dir:1},
+
+  // Profile session state — runtime only, reset when CyberSuite starts.
+  profile: {
+    sessionStartedAt: Date.now(),
+    toolsUsed: new Set(),
+    tasks: 0
+  },
+
   g: {                           // graph history
     cpu:[], ram:[], gpu:[], net:[],   // stats bar
     dcpu:[],dram:[],dgpu:[],dnet:[],  // dashboard cards
@@ -36,6 +44,8 @@ window.G = G   // expose for diagnostics / headless tests
 //  INIT
 // ═══════════════════════════════════════════════════════════════════════════
 async function init() {
+  profileStart()
+
   // resolve port
   const urlPort = new URLSearchParams(window.location.search).get('port')
   if (urlPort) setPort(urlPort)
@@ -834,8 +844,43 @@ function ncErr(id, msg){ ncSet(id, `<div class="nc-error">✕ ${esc(msg)}</div>`
 function ncBusy(id, on){ const b=document.getElementById(id); if(b){ b.disabled=on; b.style.opacity=on?'.5':'1' } }
 function sigColor(pct){ return pct>=66?'var(--net)':pct>=33?'var(--accent)':'var(--danger)' }
 
+// ── Profile session tracking ──────────────────────────────────────────────
+// Count real tool executions, not tab navigation or background refreshes.
+function profileTool(tool, countTask=true) {
+  if (!G.profile) return
+  G.profile.toolsUsed.add(tool)
+  if (countTask) G.profile.tasks++
+  profileRender()
+}
+
+function profileRender() {
+  const p = G.profile
+  if (!p) return
+
+  const elapsed = Math.max(0, Math.floor((Date.now() - p.sessionStartedAt) / 1000))
+  sTxt('profile-uptime', fmtUptimeShort(elapsed))
+  sTxt('profile-tools-used', String(p.toolsUsed.size))
+  sTxt('profile-tasks', String(p.tasks))
+}
+
+function profileStart() {
+  if (!G.profile) {
+    G.profile = {
+      sessionStartedAt: Date.now(),
+      toolsUsed: new Set(),
+      tasks: 0
+    }
+  }
+
+  profileRender()
+
+  clearInterval(G.profileTimer)
+  G.profileTimer = setInterval(profileRender, 1000)
+}
+
 /* ── SPEED TEST ── */
 window.ncSpeedtest = async function() {
+  profileTool('Speed Test')
   ncBusy('nc-speed-btn', true)
   document.querySelectorAll('#nc-speed-dials .nc-dial').forEach(d=>d.classList.add('busy'))
   sTxt('sp-down','…'); sTxt('sp-up','…'); sTxt('sp-ping','…'); sTxt('sp-jit','…')
@@ -862,6 +907,7 @@ window.ncSpeedtest = async function() {
 
 /* ── PING ── */
 window.ncPing = async function() {
+  profileTool('Ping')
   const host = gVal('nc-ping-host')||'8.8.8.8', count = gVal('nc-ping-count')||'4'
   ncBusy('nc-ping-btn', true); ncSpin('nc-ping-result', `pinging ${host}…`)
   try {
@@ -893,6 +939,7 @@ window.ncPing = async function() {
 
 /* ── DNS ── */
 window.ncDns = async function() {
+  profileTool('DNS')
   const domain = gVal('nc-dns-host')||'github.com'
   ncBusy('nc-dns-btn', true); ncSpin('nc-dns-result', `resolving ${domain}…`)
   try {
@@ -912,6 +959,7 @@ window.ncDns = async function() {
 
 /* ── WHOIS ── */
 window.ncWhois = async function() {
+  profileTool('WHOIS')
   const query = gVal('nc-whois-q')||'github.com'
   ncBusy('nc-whois-btn', true); ncSpin('nc-whois-result', `querying whois for ${query}…`)
   try {
@@ -932,6 +980,7 @@ window.ncWhois = async function() {
 
 /* ── PORT SCANNER ── */
 window.ncPortscan = async function() {
+  profileTool('Port Scan')
   const host = gVal('nc-scan-host')||'127.0.0.1', ports = gVal('nc-scan-ports').trim()
   ncBusy('nc-scan-btn', true); ncSpin('nc-scan-result', `scanning ${host}…`)
   try {
@@ -954,6 +1003,7 @@ window.ncPortscan = async function() {
 
 /* ── TRACEROUTE ── */
 window.ncTraceroute = async function() {
+  profileTool('Traceroute')
   const host = gVal('nc-trace-host')||'1.1.1.1', max = gVal('nc-trace-max')||'20'
   ncBusy('nc-trace-btn', true); ncSpin('nc-trace-result', `tracing route to ${host}…`)
   try {
@@ -974,7 +1024,8 @@ window.ncTraceroute = async function() {
 }
 
 /* ── ACTIVE CONNECTIONS ── */
-window.ncConnections = async function() {
+window.ncConnections = async function(track=true) {
+  if (track) profileTool('Connections')
   ncBusy('nc-conn-btn', true)
   const el = document.getElementById('nc-conn-result')
   if (el && !el.innerHTML) ncSpin('nc-conn-result','reading sockets…')
@@ -997,7 +1048,7 @@ window.ncConnections = async function() {
 window.ncConnAuto = function() {
   const on = document.getElementById('nc-conn-auto')?.checked
   clearInterval(G.ncConnTimer)
-  if (on) { ncConnections(); G.ncConnTimer = setInterval(()=>{ if(G.activePage==='network'&&G.ncActive==='connections') ncConnections() }, 3000) }
+  if (on) { ncConnections(); G.ncConnTimer = setInterval(()=>{ if(G.activePage==='network'&&G.ncActive==='connections') ncConnections(false) }, 3000) }
 }
 
 /* ── INTERFACES ── */

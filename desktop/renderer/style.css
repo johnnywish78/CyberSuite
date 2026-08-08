@@ -373,9 +373,13 @@ button{cursor:pointer;font-family:inherit;}
 
 /* ══ MAIN LAYOUT ════════════════════════════════════════════════════════ */
 #main-layout{
-  display:flex;flex:1;overflow:hidden;
+  display:flex;
+  flex:1;
+  min-height:0;
+  overflow:hidden;
   height:calc(100vh - 36px - 52px - 44px);
   position:relative;
+  box-sizing:border-box;
 }
 /* Dark overlay when wallpaper is active */
 body.has-wallpaper #main-layout::before{
@@ -442,9 +446,11 @@ body.has-wallpaper #taskbar{position:relative;z-index:1;}
 
 /* ══ TERMINAL ════════════════════════════════════════════════════════════ */
 #terminal-section{
-  background:var(--card);border:1px solid var(--border);border-radius:8px;
-  display:flex;flex-direction:column;
-  min-height:200px;
+  flex:1.55 1 0;
+  min-width:0;
+  min-height:0;
+  height:100%;
+  overflow:hidden;
 }
 #terminal-toolbar{
   display:flex;align-items:center;gap:8px;padding:0 10px;
@@ -862,12 +868,45 @@ body.has-wallpaper #taskbar{position:relative;z-index:1;}
   display:block;
 }
 #profile-info{flex:1;min-width:0;}
-#profile-name{font-size:13px;font-weight:900;color:var(--text);}
-#profile-role{font-size:9px;color:var(--dim);margin-top:1px;}
-#profile-level{font-size:10px;font-weight:bold;color:var(--accent);margin-top:3px;}
-#xp-bar{height:4px;background:rgba(255,255,255,.1);border-radius:2px;margin-top:3px;overflow:hidden;}
-#xp-fill{height:100%;width:87.5%;background:var(--accent);border-radius:2px;box-shadow:0 0 6px var(--accent);}
-#profile-xp{font-size:8px;color:var(--dim);margin-top:2px;}
+#profile-name{font-size:15px;font-weight:900;color:var(--text);}
+#profile-role{font-size:11px;font-weight:700;color:var(--accent);margin-top:2px;letter-spacing:.7px;}
+#profile-status{
+display:flex;
+align-items:center;
+gap:6px;
+margin-top:3px;
+font-size:8px;
+letter-spacing:.6px;
+color:var(--dim);
+}
+#profile-status b{
+color:var(--accent);
+font-weight:bold;
+}
+#profile-session{
+margin-top:5px;
+font-size:8px;
+line-height:1.35;
+}
+.profile-session-title{
+font-size:9px;
+letter-spacing:1px;
+color:var(--accent2);
+font-weight:bold;
+margin-bottom:2px;
+}
+.profile-session-row{
+font-size:10px;
+display:flex;
+justify-content:space-between;
+gap:8px;
+color:var(--dim);
+}
+.profile-session-row b{
+color:var(--text);
+font-weight:normal;
+white-space:nowrap;
+}
 
 /* ══ SIDEBAR FOOTER — SOCIAL NETWORKS ═══════════════════════════════════ */
 #sidebar-footer{
@@ -1107,16 +1146,61 @@ body.anim-off #music-art{animation:none;}
 
 /* ══ DASHBOARD LAYOUT FIX ════════════════════════════════════════════════ */
 #page-dashboard.active{
-  display:flex;flex-direction:column;
-  height:calc(100vh - 36px - 52px - 44px);
-  padding:10px 12px;overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  flex:1 1 auto;
+  height:100%;
+  min-height:0;
+  max-height:100%;
+  box-sizing:border-box;
+  padding:10px 12px;
+  overflow:hidden;
 }
 #dash-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;flex-shrink:0;}
 #dash-title{font-size:22px;font-weight:900;letter-spacing:3px;}
 .page-sub{font-size:10px;color:var(--dim);margin-top:1px;}
 #dash-cards{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
-  margin-bottom:8px;flex-shrink:0;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+  margin-bottom:7px;
+  flex-shrink:0;
+}
+
+.dash-card{
+  min-height:0;
+  height:72px;
+  padding:7px 9px;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+
+.dash-card .card-header{
+  font-size:9px;
+  line-height:1;
+}
+
+.card-val{
+  font-size:19px;
+  line-height:1.05;
+  margin:4px 0 1px;
+}
+
+.card-sub2{
+  font-size:8px;
+  line-height:1;
+  color:var(--text);
+  margin-top:1px;
+}
+
+.card-sub{
+  font-size:8px;
+  line-height:1;
+}
+
+.card-graph{
+  margin-top:2px;
+  height:18px !important;
 }
 .dash-card{min-height:0;padding:10px 12px;}
 .card-val{font-size:24px;margin:2px 0;}
@@ -1124,12 +1208,27 @@ body.anim-off #music-art{animation:none;}
 .card-graph{margin-top:4px;}
 
 /* lower row: terminal + quick tools/monitor */
-#dash-lower{display:flex;gap:8px;flex:1;min-height:0;}
-#terminal-section{flex:1.4;min-width:0;}
+#dash-lower{
+  display:flex;
+  gap:8px;
+  flex:1 1 0;
+  min-height:0;
+  height:0;
+  overflow:hidden;
+}
+#terminal-section{
+  flex:1.4 1 0;
+  min-width:0;
+  min-height:0;
+  height:100%;
+}
 #dash-side{
   flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;overflow:hidden;
 }
-#quick-tools{flex-shrink:0;}
+#quick-tools{
+  flex:0 0 auto;
+  min-height:0;
+}
 #qt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
 .qt-btn{
   display:flex;align-items:center;gap:6px;
@@ -1262,3 +1361,30 @@ body.has-wallpaper #right-rail{position:relative;z-index:1;}
 .rep-sub{font-size:11px;color:var(--dim);margin-top:2px}
 .rep-actions{flex:0 0 auto;display:flex;gap:6px}
 .rep-actions .cyber-btn{padding:5px 9px;font-size:13px;line-height:1}
+
+/* ══ DASHBOARD MONITOR FIT FIX ═══════════════════════════════════════ */
+#dash-side{
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+
+#quick-tools{
+  flex:0 0 auto !important;
+  min-height:0 !important;
+}
+
+#dash-monitor{
+  flex:1 1 0 !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+#dash-mon-graph{
+  width:100% !important;
+  height:0 !important;
+  min-height:0 !important;
+  flex:1 1 auto !important;
+  display:block !important;
+}
