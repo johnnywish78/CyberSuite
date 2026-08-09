@@ -19,6 +19,7 @@ Design for low CPU overhead:
 """
 import asyncio
 import os
+import re
 import shutil
 import subprocess
 import threading
@@ -251,6 +252,9 @@ class Sampler:
             pass
         d["fans"] = fans_out
         d["fans_available"] = len(fans_out) > 0
+
+        # fancontrol curve service (cached — cheap enough for the 1 Hz loop)
+        d["fc"] = _fc_snapshot()
 
         # Battery
         try:
@@ -557,6 +561,240 @@ def network():
     _net_prev_if["ts"] = now
     rows.sort(key=lambda r: (not r["is_up"], r["name"] == "lo", r["name"]))
     return {"ok": True, "interfaces": rows}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  FANCONTROL — fan curve service (/etc/fancontrol) status + curve controls
+#  • Service start/stop/restart goes through systemctl (works for the app user).
+#  • Curve writes need root → done via pkexec (polkit auth prompt on desktop).
+# ═══════════════════════════════════════════════════════════════════════════
+_FC_PATH = "/etc/fancontrol"
+_FC_CACHE = {"ts": 0.0, "data": None}
+_FC_PWM_RE = re.compile(r"^hwmon\d+/pwm\d+$")
+_FC_TEMP_RE = re.compile(r"^hwmon\d+/temp\d+_input$")
+_FC_FAN_RE = re.compile(r"^hwmon\d+/fan\d+_input$")
+
+
+def _fc_split_map(s: str) -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    for part in (s or "").split():
+        if "=" in part:
+            a, _, b = part.partition("=")
+            out[a] = b
+    return out
+
+
+def _fc_read_cfg() -> Optional[Dict]:
+    """Parse /etc/fancontrol → structured curve config (None if absent/bad)."""
+    try:
+        with open(_FC_PATH) as f:
+            text = f.read()
+    except Exception:
+        return None
+    raw: Dict[str, str] = {}
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, _, v = line.partition("=")
+        raw[k.strip()] = v.strip()
+
+    def gv(key: str, pwm: str) -> Optional[str]:
+        for part in raw.get(key, "").split():
+            if part.startswith(pwm + "="):
+                return part.partition("=")[2]
+        return None
+
+    def gvi(key: str, pwm: str, default: int = 0) -> int:
+        try:
+            return int(gv(key, pwm) or default)
+        except Exception:
+            return default
+
+    try:
+        interval = int(raw.get("INTERVAL", 10))
+    except Exception:
+        interval = 10
+
+    pwms = []
+    for pwm in raw.get("FCTEMPS", "").split():
+        pwm = pwm.partition("=")[0].strip()
+        if not pwm:
+            continue
+        pwms.append({
+            "pwm": pwm,
+            "fctemps": gv("FCTEMPS", pwm) or "",
+            "fcfans": gv("FCFANS", pwm) or "",
+            "mintemp": gvi("MINTEMP", pwm),
+            "maxtemp": gvi("MAXTEMP", pwm),
+            "minstart": gvi("MINSTART", pwm),
+            "minstop": gvi("MINSTOP", pwm),
+            "maxpwm": gvi("MAXPWM", pwm, 255),
+        })
+    return {
+        "interval": interval,
+        "devpath": _fc_split_map(raw.get("DEVPATH")),
+        "devname": _fc_split_map(raw.get("DEVNAME")),
+        "pwms": pwms,
+    }
+
+
+def _fc_sysfs(path: str) -> Optional[int]:
+    try:
+        with open(f"/sys/class/hwmon/{path}") as f:
+            return int(f.read().strip())
+    except Exception:
+        return None
+
+
+def _fc_snapshot() -> Dict:
+    """Live view: service state + parsed curve + current pwm/fan values (4s cache)."""
+    now = time.time()
+    if _FC_CACHE["data"] is not None and now - _FC_CACHE["ts"] < 4:
+        return _FC_CACHE["data"]
+
+    cfg = _fc_read_cfg()
+    if cfg is None:
+        result = {"available": False, "active": False, "enabled": False,
+                  "interval": 10, "devname": {}, "pwms": []}
+        _FC_CACHE.update(ts=now, data=result)
+        return result
+
+    def svc(sub: str) -> bool:
+        try:
+            r = subprocess.run(["systemctl", sub, "fancontrol"],
+                               capture_output=True, text=True, timeout=4)
+            return (r.stdout or "").strip() == ("active" if sub == "is-active" else "enabled")
+        except Exception:
+            return False
+
+    pwms = []
+    for p in cfg["pwms"]:
+        pwms.append({
+            **p,
+            "pwm_value": _fc_sysfs(p["pwm"]) if p["pwm"] else None,
+            "rpm": _fc_sysfs(p["fcfans"]) if p["fcfans"] else None,
+        })
+    result = {
+        "available": True,
+        "active": svc("is-active"),
+        "enabled": svc("is-enabled"),
+        "interval": cfg["interval"],
+        "devname": cfg["devname"],
+        "pwms": pwms,
+    }
+    _FC_CACHE.update(ts=now, data=result)
+    return result
+
+
+@router.get("/fancontrol")
+def fancontrol_get():
+    return {"ok": True, **_fc_snapshot()}
+
+
+@router.post("/fancontrol/action")
+def fancontrol_action(body: dict):
+    action = str(body.get("action", "")).strip()
+    if action not in ("start", "stop", "restart", "enable", "disable"):
+        return {"ok": False, "error": "invalid action"}
+    try:
+        r = subprocess.run(["systemctl", action, "fancontrol"],
+                           capture_output=True, text=True, timeout=20)
+        _FC_CACHE["ts"] = 0.0  # invalidate cache
+        if r.returncode == 0:
+            return {"ok": True, "action": action}
+        return {"ok": False, "error": (r.stderr or r.stdout or "failed").strip()[:300]}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+@router.post("/fancontrol/config")
+def fancontrol_config(body: dict):
+    pwms = body.get("pwms") or []
+    if not isinstance(pwms, list) or not pwms:
+        return {"ok": False, "error": "no pwm entries"}
+    try:
+        interval = max(1, min(int(body.get("interval", 10)), 60))
+    except Exception:
+        interval = 10
+    cur = _fc_read_cfg() or {"devpath": {}, "devname": {}}
+
+    def clampi(v, lo, hi, d):
+        try:
+            return max(lo, min(int(v), hi))
+        except Exception:
+            return d
+
+    clean = []
+    for p in pwms:
+        pwm = str(p.get("pwm", "")).strip()
+        fctemps = str(p.get("fctemps", "")).strip()
+        fcfans = str(p.get("fcfans", "")).strip()
+        if not _FC_PWM_RE.match(pwm):
+            return {"ok": False, "error": f"bad pwm: {pwm}"}
+        if not _FC_TEMP_RE.match(fctemps):
+            return {"ok": False, "error": f"bad temperature source: {fctemps}"}
+        if not _FC_FAN_RE.match(fcfans):
+            return {"ok": False, "error": f"bad fan sensor: {fcfans}"}
+        clean.append({
+            "pwm": pwm, "fctemps": fctemps, "fcfans": fcfans,
+            "mintemp": clampi(p.get("mintemp"), 0, 100, 40),
+            "maxtemp": clampi(p.get("maxtemp"), 0, 120, 60),
+            "minstart": clampi(p.get("minstart"), 0, 255, 150),
+            "minstop": clampi(p.get("minstop"), 0, 255, 0),
+            "maxpwm": clampi(p.get("maxpwm"), 0, 255, 255),
+        })
+    if clean[0]["maxtemp"] <= clean[0]["mintemp"]:
+        return {"ok": False, "error": "maxtemp must be greater than mintemp"}
+
+    def join_map(d: Dict[str, str]) -> str:
+        return " ".join(f"{k}={v}" for k, v in d.items())
+
+    lines = [
+        "# Configuration managed by Johnny CyberSuite X — fan control",
+        f"INTERVAL={interval}",
+    ]
+    if cur["devpath"]:
+        lines.append(f"DEVPATH={join_map(cur['devpath'])}")
+    if cur["devname"]:
+        lines.append(f"DEVNAME={join_map(cur['devname'])}")
+    for p in clean:
+        lines += [
+            f"FCTEMPS={p['pwm']}={p['fctemps']}",
+            f"FCFANS={p['pwm']}={p['fcfans']}",
+            f"MINTEMP={p['pwm']}={p['mintemp']}",
+            f"MAXTEMP={p['pwm']}={p['maxtemp']}",
+            f"MINSTART={p['pwm']}={p['minstart']}",
+            f"MINSTOP={p['pwm']}={p['minstop']}",
+            f"MAXPWM={p['pwm']}={p['maxpwm']}",
+        ]
+    text = "\n".join(lines) + "\n"
+
+    # write as root via polkit (GUI auth prompt on the desktop)
+    try:
+        r = subprocess.run(
+            ["pkexec", "sh", "-c", "cat > /etc/fancontrol"],
+            input=text.encode(), capture_output=True, timeout=40)
+        if r.returncode != 0:
+            err = (r.stderr or r.stdout or b"pkexec failed").decode(errors="replace").strip()
+            return {"ok": False, "error": err[:300]}
+    except Exception as e:
+        return {"ok": False, "error": f"write failed: {e}"}
+
+    # sanity-check the file actually landed before restarting the service
+    written = _fc_read_cfg()
+    if written is None or not written["pwms"]:
+        return {"ok": False, "error": "config file empty/missing after write — aborting restart"}
+
+    try:
+        r = subprocess.run(["systemctl", "restart", "fancontrol"],
+                           capture_output=True, text=True, timeout=20)
+        _FC_CACHE["ts"] = 0.0
+        if r.returncode != 0:
+            return {"ok": True, "warn": (r.stderr or "restart failed").strip()[:300]}
+    except Exception as e:
+        return {"ok": True, "warn": str(e)}
+    return {"ok": True, "interval": interval, "pwms": clean}
 
 
 # ═══════════════════════════════════════════════════════════════════════════

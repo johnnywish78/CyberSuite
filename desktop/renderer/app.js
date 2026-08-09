@@ -16,7 +16,7 @@ const G = {                      // global app state
   selectedTrpTheme: null,
   ncActive:'speedtest', ncLoaded:{}, ncConnTimer:null,
   // System Monitor
-  monWs:null, monTab:'processes', monPollTimer:null, monLast:null,
+  monWs:null, monTab:'processes', monPollTimer:null, monLast:null, _fcEdit:null,
   // VPN Center
   vpnPollTimer:null, vpnKS:false, vpnAC:false, vpnACProfile:null,
   procData:[], procSort:{key:'cpu',dir:-1}, procAuto:true, procPrimed:false,
@@ -170,7 +170,9 @@ function updateStats(d) {
   // ── stats bar ────────────────────────────────────────────────────────
   sTxt('val-cpu',  `${num(d.cpu)}%`)
   sTxt('val-ram',  `${num(d.ram)}%`)
-  sTxt('val-gpu',  `${num(d.gpu)}%`)
+  const gpuTxt = d.gpu != null ? `${num(d.gpu)}%`
+               : (d.gpu_temp != null ? `${num(d.gpu_temp)}°C` : '—')
+  sTxt('val-gpu',  gpuTxt)
   sTxt('val-net',  `${d.dl?.toFixed(1)||0} Mbps`)
   sTxt('val-ip',   d.local_ip || '—')
 
@@ -179,8 +181,10 @@ function updateStats(d) {
   sTxt('cs-cpu',   `${d.cpu_model||'CPU'} | Temp ${num(d.cpu_temp)}°C`)
   sTxt('cv-ram',   `${num(d.ram)}%`)
   sTxt('cs-ram',   `${d.ram_used||0} / ${d.ram_total||0} GB`)
-  sTxt('cv-gpu',   `${num(d.gpu)}%`)
-  sTxt('cs-gpu',   d.gpu_name ? `${d.gpu_name} | Temp ${num(d.gpu_temp)}°C` : 'No GPU detected')
+  sTxt('cv-gpu',   gpuTxt)
+  sTxt('cs-gpu',   d.gpu_name
+        ? `${d.gpu_name}${d.gpu_temp != null ? ` | Temp ${num(d.gpu_temp)}°C` : ''}`
+        : 'No GPU detected')
   sTxt('cv-net',   `${d.dl?.toFixed(1)||0} Mbps`)
   sTxt('cs-net',   `↑ ${d.ul?.toFixed(1)||0} Mbps`)
   sTxt('cv-uptime', fmtUptimeShort(d.uptime||0))
@@ -207,13 +211,13 @@ function updateStats(d) {
 
   // ── graph data (stats bar + dashboard cards) ─────────────────────────
   const dl = Math.min(d.dl||0, 200)
-  push(G.g.cpu,d.cpu);push(G.g.ram,d.ram);push(G.g.gpu,d.gpu);push(G.g.net,dl)
-  push(G.g.dcpu,d.cpu);push(G.g.dram,d.ram);push(G.g.dgpu,d.gpu);push(G.g.dnet,dl)
+  push(G.g.cpu,d.cpu);push(G.g.ram,d.ram);push(G.g.gpu,d.gpu ?? 0);push(G.g.net,dl)
+  push(G.g.dcpu,d.cpu);push(G.g.dram,d.ram);push(G.g.dgpu,d.gpu ?? 0);push(G.g.dnet,dl)
   push(G.g.rup, Math.min(d.ul||0,200))
   drawGraphs()
 
   // ── dashboard mini-monitor legend + taskbar temps ────────────────────
-  sTxt('dm-cpu', `${num(d.cpu)}%`); sTxt('dm-ram', `${num(d.ram)}%`); sTxt('dm-gpu', `${num(d.gpu)}%`)
+  sTxt('dm-cpu', `${num(d.cpu)}%`); sTxt('dm-ram', `${num(d.ram)}%`); sTxt('dm-gpu', gpuTxt)
   sTxt('tb-cpu-temp', d.cpu_temp!=null ? `${num(d.cpu_temp)}°C` : '—°C')
   sTxt('tb-gpu-temp', d.gpu_temp!=null ? `${num(d.gpu_temp)}°C` : '—°C')
 }
@@ -2220,7 +2224,116 @@ function monRenderSensors(d){
   if (f) f.innerHTML=(d.fans_available&&d.fans?.length)? d.fans.map(x=>`${esc(x.label)}: <b>${x.rpm}</b> rpm`).join(' &nbsp;·&nbsp; ') : 'No fan sensors exposed by this hardware.'
   const b=document.getElementById('batt-rows')
   if (b) b.innerHTML=d.battery? `${num(d.battery.percent)}% · ${d.battery.plugged?'charging / plugged in':'on battery'}` : 'No battery present (desktop system).'
+  monRenderFc(d.fc)
   sTxt('sens-count', `${(d.temps||[]).length} temp sensors`)
+}
+
+// ── FAN CONTROL (fancontrol service) ──────────────────────────────────────
+function fcStatusHtml(fc){
+  if (!fc || !fc.available) return ''
+  const dot = fc.active ? 'var(--net)' : 'var(--danger)'
+  return `
+    <span style="color:var(--accent);font-weight:bold">fancontrol</span>
+    <span style="color:${dot};font-weight:700">● ${fc.active?'ACTIVE':'STOPPED'}</span>
+    <span class="dim">enabled: ${fc.enabled?'yes':'no'}</span>
+    <span class="dim">interval: ${fc.interval}s</span>
+    <span class="dim">config: /etc/fancontrol</span>`
+}
+
+function fcNum(id, val, label){
+  return `<label class="dim" style="font-size:10px">${label}<br><input class="cyber-input" type="number" id="fc-${id}" value="${val}" style="width:100%"></label>`
+}
+
+function fcPwmCard(p){
+  const pwm = p.pwm || ''
+  const rpm = p.rpm!=null ? `${p.rpm} rpm` : '—'
+  const pv = p.pwm_value!=null ? `${p.pwm_value}/255` : '—'
+  if (G._fcEdit === pwm) {
+    return `
+    <div style="border:1px solid var(--border,#2a2a40);border-radius:6px;padding:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
+      <div style="grid-column:1/-1;font-weight:bold;color:var(--accent)">${esc(pwm)} <span class="dim">· edit</span></div>
+      ${fcNum('mintemp', p.mintemp, 'Min temp °C')}
+      ${fcNum('maxtemp', p.maxtemp, 'Max temp °C')}
+      ${fcNum('minstart', p.minstart, 'Min start PWM')}
+      ${fcNum('minstop', p.minstop, 'Min stop PWM')}
+      ${fcNum('maxpwm', p.maxpwm, 'Max PWM')}
+      <div style="grid-column:1/-1;display:flex;gap:6px;justify-content:flex-end">
+        <button class="cyber-btn" onclick="app.fcSave('${esc(pwm)}')">💾 Save</button>
+        <button class="cyber-btn" onclick="app.fcCancel()">Cancel</button>
+      </div>
+    </div>`
+  }
+  return `
+  <div style="border:1px solid var(--border,#2a2a40);border-radius:6px;padding:8px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center">
+    <span style="font-weight:bold;color:var(--accent)">${esc(pwm)}</span>
+    <span class="dim">PWM <b>${pv}</b></span>
+    <span class="dim">fan <b>${rpm}</b> · <span class="dim">${esc(p.fcfans||'?')}</span></span>
+    <span class="dim">temp ${esc(p.fctemps||'?')}</span>
+    <span class="dim">curve <b>${p.mintemp}–${p.maxtemp} °C</b> · start ${p.minstart} · stop ${p.minstop} · max ${p.maxpwm}</span>
+    <span style="margin-left:auto"><button class="cyber-btn" onclick="app.fcEdit('${esc(pwm)}')">✎ Edit</button></span>
+  </div>`
+}
+
+function monRenderFc(fc){
+  const el = document.getElementById('fc-panel')
+  if (!el) return
+  if (G._fcEdit) {
+    // don't clobber the edit form — refresh only the live status line
+    const s = document.getElementById('fc-status-line')
+    if (s) s.innerHTML = fcStatusHtml(fc)
+    return
+  }
+  if (!fc || !fc.available) {
+    el.innerHTML = 'No /etc/fancontrol config. Install fancontrol and run pwmconfig first.'
+    return
+  }
+  el.innerHTML = `
+  <div style="text-align:left;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span id="fc-status-line">${fcStatusHtml(fc)}</span>
+      <span style="margin-left:auto;display:flex;gap:6px">
+        <button class="cyber-btn" onclick="app.fcAction('start')">▶ Start</button>
+        <button class="cyber-btn" onclick="app.fcAction('stop')">■ Stop</button>
+        <button class="cyber-btn" onclick="app.fcAction('restart')">↻ Restart</button>
+      </span>
+    </div>
+    ${(fc.pwms||[]).map(fcPwmCard).join('')}
+    ${(fc.pwms||[]).length ? '' : '<div class="mon-note">No PWM outputs configured.</div>'}
+  </div>`
+}
+
+window.fcAction = async function(action){
+  try {
+    const r = await api('POST','/api/monitor/fancontrol/action',{action})
+    toast(r.ok ? `fancontrol ${action}: ok` : `fancontrol ${action}: ${r.error||'failed'}`)
+  } catch { toast('fancontrol action failed') }
+  fcRefresh()
+}
+
+window.fcEdit   = function(pwm){ G._fcEdit = pwm }
+window.fcCancel = function(){ G._fcEdit = null }
+
+window.fcSave = async function(pwm){
+  const base = G.monLast?.fc?.pwms || []
+  const pwms = base.map(p => p.pwm===pwm ? {
+    pwm: p.pwm, fctemps: p.fctemps, fcfans: p.fcfans,
+    mintemp: gVal('fc-mintemp'), maxtemp: gVal('fc-maxtemp'),
+    minstart: gVal('fc-minstart'), minstop: gVal('fc-minstop'), maxpwm: gVal('fc-maxpwm'),
+  } : {
+    pwm: p.pwm, fctemps: p.fctemps, fcfans: p.fcfans,
+    mintemp: p.mintemp, maxtemp: p.maxtemp, minstart: p.minstart, minstop: p.minstop, maxpwm: p.maxpwm,
+  })
+  if (!pwms.length) return
+  try {
+    const r = await api('POST','/api/monitor/fancontrol/config',{interval: G.monLast?.fc?.interval || 10, pwms})
+    if (r.ok) { toast('fan curve saved · service restarted'); G._fcEdit = null }
+    else toast(`save failed: ${r.error||'unknown error'}`)
+  } catch(e) { toast('save failed: '+e.message) }
+  fcRefresh()
+}
+
+async function fcRefresh(){
+  try { const r = await api('GET','/api/monitor/fancontrol'); monRenderFc(r) } catch {}
 }
 
 
@@ -2585,6 +2698,10 @@ window.app = {
   svcAction:    (...a) => window.svcAction(...a),
   disksRefresh: (...a) => window.disksRefresh(...a),
   netRefresh:   (...a) => window.netRefresh(...a),
+  fcAction:     (...a) => window.fcAction(...a),
+  fcEdit:       (...a) => window.fcEdit(...a),
+  fcCancel:     (...a) => window.fcCancel(...a),
+  fcSave:       (...a) => window.fcSave(...a),
   // VPN Center
   vpnToggle:    (...a) => window.vpnToggle(...a),
   vpnImport:    (...a) => window.vpnImport(...a),

@@ -1,10 +1,36 @@
+# Python
 venv/
-node_modules/
+backend/venv/
 __pycache__/
 *.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Environment / secrets
+.env
+*.env
+
+# Logs
+*.log
+
+# Build output
+dist/
+squashfs-root/
+
+# Backup files
+*.backup
+*.bak
+
+# OS / editor
 .DS_Store
 .vscode/
 .idea/
-dist/
-*.backup
+
+# Runtime settings (local, per-user)
 backend/settings.json

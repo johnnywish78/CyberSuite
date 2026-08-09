@@ -1,7 +1,7 @@
 """
 Johnny CyberSuite X — FastAPI Backend
 """
-import asyncio, json, os, pty, fcntl, select, signal, struct, subprocess, time
+import asyncio, json, os, pty, fcntl, select, signal, struct, subprocess, time, glob
 from typing import Optional, List, Dict
 from datetime import datetime
 from pathlib import Path
@@ -102,7 +102,13 @@ def _get_local_ip() -> str:
     return ip
 
 def _query_gpu() -> Dict:
-    """GPU info via nvidia-smi, fallback to lspci/nouveau."""
+    """GPU utilization via nvidia-smi, with fallbacks for non-NVIDIA GPUs:
+
+      1. nvidia-smi  → util + temp + name (proprietary driver)
+      2. sysfs busy % → /sys/class/drm/cardN/device/gpu_busy_percent (amdgpu / Intel)
+      3. hwmon temp   → psutil sensors (nouveau / amdgpu / radeon / i915)
+      4. lspci        → model name + kernel driver (always available)
+    """
 
     global _gpu_fail_until
 
@@ -134,10 +140,31 @@ def _query_gpu() -> Dict:
             _gpu_fail_until = now + 60
 
 
-    # Fallback: detect GPU from PCI
-    name = ""
-    driver = ""
+    result = {"gpu": None, "gpu_temp": None, "gpu_name": "", "gpu_driver": ""}
 
+    # Fallback 2: sysfs GPU busy % (amdgpu / some Intel iGPU)
+    try:
+        for card in sorted(glob.glob("/sys/class/drm/card[0-9]/device/gpu_busy_percent")):
+            with open(card) as f:
+                val = float(f.read().strip())
+                if 0 <= val <= 100:
+                    result["gpu"] = val
+            break
+    except Exception:
+        pass
+
+    # Fallback 3: GPU temperature from hwmon (nouveau / amdgpu / radeon / i915)
+    if HAS_PSUTIL:
+        try:
+            temps = psutil.sensors_temperatures()
+            for key in ("nouveau", "amdgpu", "radeon", "i915"):
+                if key in temps and temps[key]:
+                    result["gpu_temp"] = round(temps[key][0].current, 1)
+                    break
+        except Exception:
+            pass
+
+    # Fallback 4: detect GPU model name / kernel driver from PCI
     try:
         out = subprocess.check_output(
             ["lspci", "-nnk"],
@@ -148,23 +175,18 @@ def _query_gpu() -> Dict:
 
         for i, line in enumerate(lines):
             if "VGA compatible controller" in line or "3D controller" in line:
-                name = line.split(": ", 1)[-1]
+                result["gpu_name"] = line.split(": ", 1)[-1]
 
                 for sub in lines[i+1:i+4]:
                     if "Kernel driver in use:" in sub:
-                        driver = sub.split(":")[-1].strip()
+                        result["gpu_driver"] = sub.split(":")[-1].strip()
 
                 break
 
     except:
         pass
 
-    return {
-        "gpu": 0.0,
-        "gpu_temp": 0.0,
-        "gpu_name": name,
-        "gpu_driver": driver
-    }
+    return result
 
 @app.get("/api/stats")
 def get_stats():
