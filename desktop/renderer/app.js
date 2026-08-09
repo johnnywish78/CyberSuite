@@ -170,8 +170,7 @@ function updateStats(d) {
   // ── stats bar ────────────────────────────────────────────────────────
   sTxt('val-cpu',  `${num(d.cpu)}%`)
   sTxt('val-ram',  `${num(d.ram)}%`)
-  const gpuTxt = d.gpu != null ? `${num(d.gpu)}%`
-               : (d.gpu_temp != null ? `${num(d.gpu_temp)}°C` : '—')
+  const gpuTxt = d.gpu_temp != null ? `${num(d.gpu_temp)}°C` : '—'
   sTxt('val-gpu',  gpuTxt)
   sTxt('val-net',  `${d.dl?.toFixed(1)||0} Mbps`)
   sTxt('val-ip',   d.local_ip || '—')
