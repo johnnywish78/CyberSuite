@@ -1,52 +1,70 @@
 # Johnny CyberSuite X
 
-**Johnny CyberSuite X 3.9.0 — Stable**
+<p align="center">
+  <strong>CURIOUS MIND</strong><br>
+  Explore. Understand. Build. Secure.
+</p>
 
-A modern, modular cybersecurity and network toolkit built around an Electron desktop interface and a Python/FastAPI backend.
-
-> **Status:** Stable  
-> **Version:** 3.9.0  
-> **Build:** 390  
-> **Stable checkpoint:** `v3.9.0-stable`
 
 ---
 
-## ✨ Overview
+## 🚀 Overview
 
-Johnny CyberSuite X is designed as a unified desktop environment for network analysis, system monitoring, cybersecurity utilities, VPN/network diagnostics, and future extensible security tools.
+**Johnny CyberSuite X** is a modern, modular cybersecurity and network toolkit built around an Electron desktop interface and a Python/FastAPI backend.
 
-The project combines:
+It brings network analysis, system monitoring, VPN diagnostics, terminal utilities, runtime session information, and security-oriented tools together inside a unified Linux desktop environment.
 
-- Electron desktop application
-- HTML/CSS/JavaScript renderer
-- Python backend
-- FastAPI services
-- Modular network tools
-- Theme engine
-- Cyberpunk-inspired interface
-- Runtime session statistics
-- Automated testing
-- Linux packaging and release automation
+<p align="center">
+  <img src="docs/images/dashboard.png" alt="Johnny CyberSuite X Dashboard">
+</p>
+
+> **Status:** Development
+> **Version:** 3.9.0
+> **Stable checkpoint:** `v3.9.0-stable`
+> **Development branch:** `develop-v3.9`
+
+---
+
+## ✨ Features
+
+- 🖥️ Electron desktop interface
+- 🌐 Network Center
+- 📡 Live network diagnostics
+- 🛡️ VPN status and diagnostics
+- 📊 System and hardware monitoring
+- 🖥️ Integrated terminal
+- 👤 Runtime profile and session information
+- ⏱️ Runtime uptime tracking
+- 🧰 Tools-used and task tracking
+- 🎨 Multiple visual themes
+- ⚡ Cyberpunk-inspired neon interface
+- 🔌 Modular Python/FastAPI backend
+- 🧪 Automated test suite
+- 📦 Linux AppImage packaging
+- 📦 Debian package (`.deb`) packaging
+- 🤖 Foundation for future AI and security modules
 
 ---
 
 ## 🖥️ Current Interface
 
-The v3.9.0 stable interface includes:
+The current `develop-v3.9` development line includes:
 
 - Dashboard
 - Network Center
-- System monitoring
-- VPN status and diagnostics
-- Profile/session information
+- System Monitor
+- VPN Status
+- Profile and session information
 - Runtime uptime
 - Tools-used tracking
 - Task tracking
 - Multiple visual themes
 - Responsive themed layout
-- Cyberpunk/neon visual design
+- Cyberpunk / neon visual design
 
-The profile identity currently uses:
+### Profile Identity
+
+The current profile identity is:
 
 **CURIOUS MIND**
 
@@ -72,107 +90,14 @@ Johnny CyberSuite X
 ├── assets/
 ├── build/
 ├── tests/
+├── docs/
+│   └── images/
 ├── .github/
 │   └── workflows/
+│
 ├── package.json
+├── package-lock.json
 ├── VERSION
 ├── version.json
 ├── start.sh
 └── README.md
-🧰 Main Technologies
-Desktop
-Electron
-JavaScript
-HTML5
-CSS3
-Backend
-Python
-FastAPI
-Uvicorn
-Development
-Git
-GitHub
-npm
-Python virtual environments
-pytest
-GitHub Actions
-electron-builder
-Linux Packaging
-
-The project supports Linux desktop packaging through Electron Builder, including:
-
-AppImage
-Debian package
-🚀 Running From Source
-
-Clone the repository:
-
-git clone https://github.com/johnnywish78/CyberSuite.git
-cd CyberSuite
-
-Create/activate the Python environment as required by the project and install dependencies.
-
-Then:
-
-./start.sh
-
-The application starts the Python backend and launches the Electron desktop interface.
-
-🧪 Testing
-
-Run the test suite with:
-
-pytest tests -v
-
-The v3.9 development checkpoint was verified with the project's automated test suite before being marked stable.
-
-📦 Version
-
-Current stable version:
-
-3.9.0
-
-Git tag:
-
-v3.9.0-stable
-🔐 Security
-
-CyberSuite is intended for legitimate defensive security, network administration, diagnostics, learning, and authorized testing.
-
-Only use network and security functionality against systems and networks for which you have permission.
-
-📜 License
-
-Johnny CyberSuite X source code is released under the MIT License.
-
-See:
-
-LICENSE
-
-Third-party libraries and dependencies remain subject to their respective licenses.
-
-👤 Author
-
-Johnny Wish
-
-Project:
-
-Johnny CyberSuite X
-
-GitHub:
-
-https://github.com/johnnywish78/CyberSuite
-
-❤️ Project Philosophy
-
-CyberSuite is built around a simple idea:
-
-CURIOUS MIND
-
-Explore. Understand. Build. Secure.
-
-⚠️ Disclaimer
-
-This software is provided for educational, research, defensive security, system administration, and authorized testing purposes.
-
-The author is not responsible for misuse of the software or for actions performed against systems without authorization.

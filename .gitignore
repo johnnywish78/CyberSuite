@@ -34,3 +34,6 @@ squashfs-root/
 
 # Runtime settings (local, per-user)
 backend/settings.json
+
+# Local legacy project copy
+CyberSuite/
