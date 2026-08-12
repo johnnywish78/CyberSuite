@@ -75,21 +75,29 @@ class CloudflareProvider:
 
     async def status(self) -> dict[str, Any]:
         try:
-            payload = await asyncio.to_thread(
+            token_payload = await asyncio.to_thread(
                 self.client.verify_token
             )
+
+            workers_payload = await asyncio.to_thread(
+                self.client.list_workers,
+                self.account_id,
+            )
+
         except CloudflareAPIError as exc:
             raise CloudflareProviderError(
                 str(exc),
                 code="authentication",
             ) from exc
 
-        result = payload.get("result") or {}
+        token_result = token_payload.get("result") or {}
+        workers_result = workers_payload.get("result") or []
 
         return {
-            "authenticated": bool(result.get("status") == "active"),
-            "token_status": result.get("status"),
+            "authenticated": token_result.get("status") == "active",
+            "token_status": token_result.get("status"),
             "account_id": self.account_id,
+            "workers_available": len(workers_result),
         }
 
     async def list_workers(self) -> list[dict[str, Any]]:

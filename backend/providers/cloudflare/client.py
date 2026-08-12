@@ -7,7 +7,6 @@ No application/business logic belongs here.
 
 from __future__ import annotations
 
-import os
 from typing import Any
 
 import requests
@@ -21,17 +20,14 @@ class CloudflareAPIError(RuntimeError):
         message: str,
         *,
         status_code: int | None = None,
-        errors: list[dict[str, Any]] | None = None,
-        code: str | None = None,
+        errors: list | None = None,
     ):
         super().__init__(message)
         self.status_code = status_code
         self.errors = errors or []
-        self.code = code
 
 
 class CloudflareClient:
-    """Small synchronous Cloudflare API client."""
 
     BASE_URL = "https://api.cloudflare.com/client/v4"
 
@@ -49,12 +45,7 @@ class CloudflareClient:
         self.session = session or requests.Session()
 
         if session is None:
-            # CloudPilot explicitly controls proxy behavior.
-            self.session.trust_env = False
-
-            # CloudPilot Cloudflare control-plane uses direct HTTPS.
-            # Do not inherit local proxy settings.
-            self.session.proxies.clear()
+            self.session.trust_env = True
 
         self.session.headers.update(
             {
@@ -105,6 +96,7 @@ class CloudflareClient:
                     if isinstance(item, dict)
                 ]
                 messages = [x for x in messages if x]
+
                 if messages:
                     detail = "; ".join(messages)
 
@@ -136,10 +128,7 @@ class CloudflareClient:
 
         return self._request(
             "GET",
-            (
-                f"/accounts/{account_id}"
-                f"/workers/scripts/{worker_name}"
-            ),
+            f"/accounts/{account_id}/workers/scripts/{worker_name}",
         )
 
     def list_deployments(
