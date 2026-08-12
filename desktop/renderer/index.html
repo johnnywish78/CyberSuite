@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';"
+  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudPilot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">CP</div>
+        <div>
+          <div class="brand-name">CloudPilot</div>
+          <div class="brand-sub">CONTROL PLANE</div>
+        </div>
+      </div>
+
+      <nav>
+        <button class="nav-item active" data-view="dashboard">
+          <span>◈</span>
+          Dashboard
+        </button>
+
+        <button class="nav-item" data-view="workers">
+          <span>▣</span>
+          Workers
+        </button>
+
+        <button class="nav-item" data-view="deployments">
+          <span>↻</span>
+          Deployments
+        </button>
+
+        <button class="nav-item" data-view="settings">
+          <span>⚙</span>
+          Settings
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="connection-dot"></div>
+        <div>
+          <div class="footer-title">Local Backend</div>
+          <div id="backend-status">Checking...</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">CLOUD CONTROL PLANE</div>
+          <h1 id="page-title">Dashboard</h1>
+        </div>
+
+        <div class="top-actions">
+          <span class="version">v0.1.0</span>
+          <button id="refresh-btn" class="button secondary">
+            Refresh
+          </button>
+        </div>
+      </header>
+
+      <section id="view-dashboard" class="view active">
+
+        <div class="connection-banner not-connected">
+          <div class="status-icon">!</div>
+
+          <div class="banner-content">
+            <div class="banner-title">
+              Cloudflare is not connected
+            </div>
+            <div class="banner-text">
+              Add your Cloudflare credentials later to activate live
+              account data. The interface is ready.
+            </div>
+          </div>
+
+          <button class="button primary" data-view-target="settings">
+            Configure
+          </button>
+        </div>
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+            <div class="stat-label">CONNECTION</div>
+            <div id="stat-connection" class="stat-value muted">
+              Not Connected
+            </div>
+            <div class="stat-meta">
+              Cloudflare API
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-label">WORKERS</div>
+            <div id="stat-workers" class="stat-value">3</div>
+            <div class="stat-meta">
+              Contract preview
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-label">DEPLOYMENTS</div>
+            <div id="stat-deployments" class="stat-value">8</div>
+            <div class="stat-meta">
+              Contract preview
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-label">BACKEND</div>
+            <div id="stat-backend" class="stat-value">Online</div>
+            <div class="stat-meta">
+              127.0.0.1:8765
+            </div>
+          </div>
+
+        </div>
+
+        <div class="section-header">
+          <div>
+            <div class="section-title">Workers</div>
+            <div class="section-subtitle">
+              Cloudflare Worker inventory
+            </div>
+          </div>
+
+          <button class="button secondary" data-view-target="workers">
+            View all
+          </button>
+        </div>
+
+        <div id="dashboard-workers" class="worker-grid"></div>
+
+      </section>
+
+      <section id="view-workers" class="view">
+
+        <div class="section-header">
+          <div>
+            <div class="section-title">Workers</div>
+            <div class="section-subtitle">
+              Live API data when connected, contract data otherwise
+            </div>
+          </div>
+        </div>
+
+        <div id="workers-list" class="table-card"></div>
+
+      </section>
+
+      <section id="view-deployments" class="view">
+
+        <div class="section-header">
+          <div>
+            <div class="section-title">Deployments</div>
+            <div class="section-subtitle">
+              Worker deployment history
+            </div>
+          </div>
+        </div>
+
+        <div id="deployments-list" class="table-card"></div>
+
+      </section>
+
+      <section id="view-settings" class="view">
+
+        <div class="settings-card">
+
+          <div class="section-title">Cloudflare Configuration</div>
+          <div class="section-subtitle">
+            Credentials remain server-side and are never exposed to the UI.
+          </div>
+
+          <div class="config-status">
+            <div>
+              <span class="config-label">Account ID</span>
+              <strong id="config-account">Not configured</strong>
+            </div>
+
+            <div>
+              <span class="config-label">API Token</span>
+              <strong id="config-token">Not configured</strong>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <strong>No credentials detected.</strong>
+            <p>
+              CloudPilot can still run in contract-preview mode.
+              Configure CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN
+              in the backend environment when you are ready.
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+
+      <footer>
+        <span>CloudPilot Control Plane</span>
+        <span id="data-mode">CONTRACT MODE</span>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

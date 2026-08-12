@@ -1,0 +1,30 @@
+{
+  "name": "cloudpilot",
+  "version": "0.1.0",
+  "description": "CloudPilot \u2014 Provider-aware infrastructure control desktop",
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "electron . --no-sandbox",
+    "dev": "electron . --no-sandbox --dev",
+    "build": "electron-builder --linux deb AppImage"
+  },
+  "author": "Johnny",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^30.0.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.johnny.cloudpilot",
+    "productName": "CloudPilot",
+    "linux": {
+      "target": [
+        "deb",
+        "AppImage"
+      ],
+      "category": "Utility"
+    }
+  }
+}
