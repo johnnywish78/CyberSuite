@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta
     http-equiv="Content-Security-Policy"
-    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' http://127.0.0.1:8765 http://localhost:8765;"
   >
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CloudPilot</title>
+  <title>Wish K E Cyber Panel</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -16,9 +16,9 @@
 
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-mark">CP</div>
+        <div class="brand-mark">W</div>
         <div>
-          <div class="brand-name">CloudPilot</div>
+          <div class="brand-name" data-text="WISH K E CYBER PANEL">WISH K E CYBER PANEL</div>
           <div class="brand-sub">CONTROL PLANE</div>
         </div>
       </div>
@@ -37,6 +37,21 @@
         <button class="nav-item" data-view="deployments">
           <span>↻</span>
           Deployments
+        </button>
+
+        <button class="nav-item" data-view="config">
+          <span>◈</span>
+          Config Builder
+        </button>
+
+        <button class="nav-item" data-view="network">
+          <span>⌁</span>
+          Network Checker
+        </button>
+
+        <button class="nav-item" data-view="railway">
+          <span>🚂</span>
+          Railway Relay
         </button>
 
         <button class="nav-item" data-view="settings">
@@ -175,8 +190,576 @@
 
       </section>
 
-      <section id="view-settings" class="view">
+      <section id="view-network" class="view">
 
+        <div class="section-header">
+          <div>
+            <div class="section-title">Network Checker</div>
+            <div class="section-subtitle">
+              Network tools for your own internet connection
+            </div>
+          </div>
+        </div>
+
+        <div class="net-tabs">
+          <button class="net-tab active" data-net-tab="cleanip">
+            Clean IPs
+          </button>
+          <button class="net-tab" data-net-tab="domains">
+            Domains
+          </button>
+          <button class="net-tab" data-net-tab="dns">
+            DNS
+          </button>
+          <button class="net-tab" data-net-tab="dns-hunt">
+            DNS Hunter
+          </button>
+          <button class="net-tab" data-net-tab="vless">
+            Vless Modifier
+          </button>
+          <button class="net-tab" data-net-tab="xray">
+            CDN Xray Scan
+          </button>
+          <button class="net-tab" data-net-tab="akamai">
+            Akamai
+          </button>
+          <button class="net-tab" data-net-tab="netlify">
+            Netlify
+          </button>
+          <button class="net-tab" data-net-tab="sni">
+            SNI Spoof
+          </button>
+          <button class="net-tab" data-net-tab="diag">
+            Diagnostics
+          </button>
+        </div>
+
+        <!-- Clean IP scan -->
+        <div class="net-panel active" data-net-panel="cleanip">
+
+          <div class="settings-card network-card">
+            <div class="section-title">Scan clean IPs</div>
+            <div class="section-subtitle">
+              Probes Cloudflare edge IP ranges over TLS and reports the IPs
+              that are reachable from your network. Use them to pin your
+              panel or subscriptions to unfiltered IPs.
+            </div>
+
+            <div class="cred-form">
+              <label>
+                <span>SNI host (optional)</span>
+                <input id="net-sni" type="text" autocomplete="off"
+                       placeholder="speed.cloudflare.com">
+              </label>
+
+              <label>
+                <span>Sample size</span>
+                <select id="net-sample">
+                  <option value="128">128 IPs (fast)</option>
+                  <option value="512" selected>512 IPs (balanced)</option>
+                  <option value="2048">2048 IPs (thorough)</option>
+                </select>
+              </label>
+
+              <label>
+                <span>IP ranges (optional, one CIDR per line)</span>
+                <textarea id="net-ranges" rows="4" autocomplete="off"
+                          placeholder="Leave empty to use official Cloudflare ranges"></textarea>
+              </label>
+
+              <label>
+                <span>Concurrency</span>
+                <select id="net-concurrency">
+                  <option value="64">64</option>
+                  <option value="128" selected>128</option>
+                  <option value="256">256</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="cred-actions">
+              <button id="net-scan-btn" class="button primary">
+                Start scan
+              </button>
+              <span id="net-scan-status" class="form-status"></span>
+            </div>
+
+            <div id="net-error" class="info-box error-box" hidden></div>
+
+            <div class="info-box">
+              <strong>Note.</strong>
+              <p>
+                The scan runs directly over your local connection and takes a
+                few seconds to a few minutes depending on the sample size.
+              </p>
+            </div>
+          </div>
+
+          <div id="net-results" class="bpb-deployments" hidden></div>
+        </div>
+
+        <!-- Domain checker -->
+        <div class="net-panel" data-net-panel="domains">
+
+          <div class="settings-card network-card">
+            <div class="section-title">Domain Checker</div>
+            <div class="section-subtitle">
+              Checks whether websites are reachable over TLS from your
+              connection. Blank uses a list of popular domains.
+            </div>
+
+            <div class="cred-form">
+              <label class="full">
+                <span>Domains (comma separated, optional)</span>
+                <textarea id="net-domains" rows="4" autocomplete="off"
+                          placeholder="google.com, telegram.org, chatgpt.com"></textarea>
+              </label>
+            </div>
+
+            <div class="cred-actions">
+              <button id="net-domains-btn" class="button primary">
+                Check domains
+              </button>
+              <span id="net-domains-status" class="form-status"></span>
+            </div>
+
+            <div id="net-domains-error" class="info-box error-box" hidden></div>
+          </div>
+
+          <div id="net-domains-results" class="bpb-deployments" hidden></div>
+        </div>
+
+        <!-- DNS latency test -->
+        <div class="net-panel" data-net-panel="dns">
+
+          <div class="settings-card network-card">
+            <div class="section-title">DNS Latency Test</div>
+            <div class="section-subtitle">
+              Measures DNS query latency for the well-known DNS providers.
+            </div>
+
+            <div class="cred-actions">
+              <button id="net-dns-btn" class="button primary">
+                Run DNS test
+              </button>
+              <span id="net-dns-status" class="form-status"></span>
+            </div>
+
+            <div id="net-dns-error" class="info-box error-box" hidden></div>
+          </div>
+
+          <div id="net-dns-results" class="bpb-deployments" hidden></div>
+        </div>
+
+        <!-- Vless modifier -->
+        <div class="net-panel" data-net-panel="vless">
+
+          <div class="settings-card network-card">
+            <div class="section-title">Vless Config Modifier</div>
+            <div class="section-subtitle">
+              Replace the address of each vless:// config with every clean IP
+              you provide (one per line).
+            </div>
+
+            <div class="cred-form">
+              <label class="full">
+                <span>vless:// configs (one per line)</span>
+                <textarea id="net-vless-configs" rows="4" autocomplete="off"
+                          placeholder="vless://uuid@1.2.3.4:443?..."></textarea>
+              </label>
+
+              <label class="full">
+                <span>Clean IPs (one per line)</span>
+                <textarea id="net-vless-ips" rows="4" autocomplete="off"
+                          placeholder="104.16.0.1&#10;1.1.1.1&#10;2001:4860:4860::8888"></textarea>
+              </label>
+            </div>
+
+            <div class="cred-actions">
+              <button id="net-vless-btn" class="button primary">
+                Generate configs
+              </button>
+              <span id="net-vless-status" class="form-status"></span>
+            </div>
+
+            <div id="net-vless-error" class="info-box error-box" hidden></div>
+          </div>
+
+          <div id="net-vless-results" class="bpb-deployments" hidden></div>
+        </div>
+
+        <!-- SNI spoof check -->
+        <div class="net-panel" data-net-panel="sni">
+
+          <div class="settings-card network-card">
+            <div class="section-title">SNI Spoof Check</div>
+            <div class="section-subtitle">
+              Checks whether SNI spoofing is possible on your connection.
+            </div>
+
+            <div class="cred-form">
+              <label>
+                <span>Host</span>
+                <input id="net-sni-host" type="text" autocomplete="off"
+                       placeholder="chatgpt.com">
+              </label>
+
+              <label>
+                <span>Decoy SNI</span>
+                <input id="net-sni-decoy" type="text" autocomplete="off"
+                       placeholder="icloud.com">
+              </label>
+            </div>
+
+            <div class="cred-actions">
+              <button id="net-sni-btn" class="button primary">
+                Run check
+              </button>
+              <span id="net-sni-status" class="form-status"></span>
+            </div>
+
+            <div id="net-sni-error" class="info-box error-box" hidden></div>
+          </div>
+
+          <div id="net-sni-results" class="bpb-deployments" hidden></div>
+        </div>
+
+        <!-- DNS Hunter -->
+        <div class="net-panel" data-net-panel="dns-hunt">
+
+          <div class="settings-card network-card">
+            <div class="section-title">DNS Hunter</div>
+            <div class="section-subtitle">
+              Asks Iranian DNS providers how they resolve a domain. Blank
+              uses a default domain.
+            </div>
+
+            <div class="cred-form">
+              <label>
+                <span>Domain (optional)</span>
+                <input id="net-dns-hunt-domain" type="text"
+                       autocomplete="off" placeholder="google.com">
+              </label>
+            </div>
+
+            <div class="cred-actions">
+              <button id="net-dns-hunt-btn" class="button primary">
+                Hunt DNS
+              </button>
+              <span id="net-dns-hunt-status" class="form-status"></span>
+            </div>
+
+            <div id="net-dns-hunt-error" class="info-box error-box" hidden></div>
+          </div>
+
+          <div id="net-dns-hunt-results" class="bpb-deployments" hidden></div>
+        </div>
+
+        <!-- CDN Xray scanner -->
+        <div class="net-panel" data-net-panel="xray">
+
+          <div class="settings-card network-card">
+            <div class="section-title">CDN Xray Scanner</div>
+            <div class="section-subtitle">
+              Scans CDN IP ranges against your Xray JSON config and reports
+              the reachable IPs. Runs via TCP/TLS probes, no Xray binary
+              needed.
+            </div>
+
+            <div class="cred-form">
+              <label class="full">
+                <span>Xray JSON config</span>
+                <textarea id="net-xray-config" rows="8" autocomplete="off"
+                          placeholder='{ "outbounds": [ { "protocol": "vless", ... } ] }'></textarea>
+              </label>
+
+              <label>
+                <span>Sample size</span>
+                <select id="net-xray-sample">
+                  <option value="128">128 IPs (fast)</option>
+                  <option value="512" selected>512 IPs (balanced)</option>
+                  <option value="2048">2048 IPs (thorough)</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="cred-actions">
+              <button id="net-xray-btn" class="button primary">
+                Scan CDN
+              </button>
+              <span id="net-xray-status" class="form-status"></span>
+            </div>
+
+            <div id="net-xray-error" class="info-box error-box" hidden></div>
+          </div>
+
+          <div id="net-xray-results" class="bpb-deployments" hidden></div>
+        </div>
+
+        <!-- Akamai scanner -->
+        <div class="net-panel" data-net-panel="akamai">
+
+          <div class="settings-card network-card">
+            <div class="section-title">Akamai IP Scan</div>
+            <div class="section-subtitle">
+              Scans Akamai edge IP ranges over TLS and reports the reachable
+              ones.
+            </div>
+
+            <div class="cred-form">
+              <label>
+                <span>Sample size</span>
+                <select id="net-akamai-sample">
+                  <option value="128">128 IPs (fast)</option>
+                  <option value="512" selected>512 IPs (balanced)</option>
+                  <option value="2048">2048 IPs (thorough)</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="cred-actions">
+              <button id="net-akamai-btn" class="button primary">
+                Scan Akamai
+              </button>
+              <span id="net-akamai-status" class="form-status"></span>
+            </div>
+
+            <div id="net-akamai-error" class="info-box error-box" hidden></div>
+          </div>
+
+          <div id="net-akamai-results" class="bpb-deployments" hidden></div>
+        </div>
+
+        <!-- Netlify config generator -->
+        <div class="net-panel" data-net-panel="netlify">
+
+          <div class="settings-card network-card">
+            <div class="section-title">Netlify Config Generator</div>
+            <div class="section-subtitle">
+              Generates multiple netlify.toml configs from SNIs and IPs.
+            </div>
+
+            <div class="cred-form">
+              <label class="full">
+                <span>SNIs (one per line)</span>
+                <textarea id="net-netlify-snis" rows="3" autocomplete="off"
+                          placeholder="chatgpt.com"></textarea>
+              </label>
+
+              <label class="full">
+                <span>IPs (one per line)</span>
+                <textarea id="net-netlify-ips" rows="3" autocomplete="off"
+                          placeholder="104.16.0.1"></textarea>
+              </label>
+            </div>
+
+            <div class="cred-actions">
+              <button id="net-netlify-btn" class="button primary">
+                Generate configs
+              </button>
+              <span id="net-netlify-status" class="form-status"></span>
+            </div>
+
+            <div id="net-netlify-error" class="info-box error-box" hidden></div>
+          </div>
+
+          <div id="net-netlify-results" class="bpb-deployments" hidden></div>
+        </div>
+
+        <!-- Diagnostics -->
+        <div class="net-panel" data-net-panel="diag">
+
+          <div class="settings-card network-card">
+            <div class="section-title">Internet Diagnostics</div>
+            <div class="section-subtitle">
+              Runs automated tests over your connection: DNS latency, TCP
+              connect, TLS handshake and DNS resolution for each target.
+            </div>
+
+            <div class="cred-form">
+              <label class="full">
+                <span>Targets (comma separated, optional)</span>
+                <input id="net-diag-targets" type="text" autocomplete="off"
+                       placeholder="google.com, github.com, telegram.org">
+              </label>
+            </div>
+
+            <div class="cred-actions">
+              <button id="net-diag-btn" class="button primary">
+                Run diagnostics
+              </button>
+              <span id="net-diag-status" class="form-status"></span>
+            </div>
+
+            <div id="net-diag-error" class="info-box error-box" hidden></div>
+          </div>
+
+          <div id="net-diag-results" class="bpb-deployments" hidden></div>
+        </div>
+
+      </section>
+
+      <section id="view-railway" class="view">
+
+        <div class="section-header">
+          <div>
+            <div class="section-title">Avaco Railway Relay</div>
+            <div class="section-subtitle">
+              Deploy a free XHTTP relay on Railway with automatic setup
+            </div>
+          </div>
+
+          <button id="rw-refresh" class="button secondary">
+            Refresh
+          </button>
+        </div>
+
+        <div class="settings-card">
+          <div class="section-title">Railway Configuration</div>
+          <div class="section-subtitle">
+            The account token is stored server-side and is never exposed to
+            the UI. Get one at railway.com/account/tokens.
+          </div>
+
+          <div class="config-status">
+            <div>
+              <span class="config-label">API Token</span>
+              <strong id="rw-config-token">Not configured</strong>
+            </div>
+            <div>
+              <span class="config-label">Account</span>
+              <strong id="rw-config-account">—</strong>
+            </div>
+          </div>
+
+          <div class="cred-form">
+            <label>
+              <span>Railway API Token</span>
+              <input id="rw-token" type="password" autocomplete="off"
+                     placeholder="A Railway account token">
+            </label>
+
+            <div class="cred-actions">
+              <button id="rw-save-token-btn" class="button primary">
+                Save Token
+              </button>
+              <span id="rw-save-token-status" class="form-status"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card network-card">
+          <div class="section-title">Deploy relay</div>
+          <div class="section-subtitle">
+            Creates a Railway project, uploads the bundled Avaco relay
+            source, sets the environment variables and attaches a public
+            <code>*.up.railway.app</code> domain automatically.
+          </div>
+
+          <div class="cred-form">
+            <label>
+              <span>Relay name</span>
+              <input id="rw-name" type="text" autocomplete="off"
+                     value="avaco-relay"
+                     pattern="[a-zA-Z0-9_-]+">
+            </label>
+
+            <label class="full">
+              <span>TARGET_DOMAIN (required)</span>
+              <input id="rw-target" type="text" autocomplete="off"
+                     placeholder="https://YOUR-SERVER-IP-OR-DOMAIN:443">
+            </label>
+
+            <label>
+              <span>PUBLIC_RELAY_PATH</span>
+              <input id="rw-public-path" type="text" autocomplete="off"
+                     value="/api">
+            </label>
+
+            <label>
+              <span>RELAY_PATH</span>
+              <input id="rw-relay-path" type="text" autocomplete="off"
+                     value="/api">
+            </label>
+
+            <label>
+              <span>RELAY_KEY (auto-generated when left blank)</span>
+              <input id="rw-key" type="password" autocomplete="off"
+                     placeholder="16+ chars — client must send x-relay-key">
+            </label>
+
+            <label>
+              <span>UPSTREAM_TIMEOUT_MS</span>
+              <input id="rw-timeout" type="number" autocomplete="off"
+                     value="0" min="0">
+            </label>
+
+            <label>
+              <span>MAX_INFLIGHT</span>
+              <input id="rw-inflight" type="number" autocomplete="off"
+                     value="512" min="1">
+            </label>
+
+            <label>
+              <span>Region</span>
+              <select id="rw-region">
+                <option value="">Auto</option>
+                <option value="us-west2">US West (California)</option>
+                <option value="us-east4">US East (Virginia)</option>
+                <option value="europe-west4">EU West (Amsterdam)</option>
+                <option value="asia-southeast1">Southeast Asia (Singapore)</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="cred-actions">
+            <button id="rw-deploy-btn" class="button primary">
+              Deploy automatically
+            </button>
+            <span id="rw-deploy-status" class="form-status"></span>
+          </div>
+
+          <div id="rw-deploy-error" class="info-box error-box" hidden></div>
+
+          <div class="info-box">
+            <strong>Note.</strong>
+            <p>
+              After deploying, the relay listens on
+              <code>PUBLIC_RELAY_PATH</code> and forwards XHTTP traffic to
+              your <code>TARGET_DOMAIN</code>. Keep the relay key to add
+              <code>x-relay-key</code> to your client config. Verify the
+              deployment with the debug check below.
+            </p>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div>
+            <div class="section-title">Deployments</div>
+            <div class="section-subtitle">
+              Relays deployed from this machine
+            </div>
+          </div>
+        </div>
+
+        <div id="rw-deployments-list" class="bpb-deployments"></div>
+
+        <div class="settings-card logs-box" id="rw-debug-box" hidden>
+          <div class="section-title">Relay debug</div>
+          <div class="section-subtitle">
+            Live status returned by the /__debug endpoint.
+          </div>
+          <pre id="rw-debug-content" class="logs-content"></pre>
+          <div class="cred-actions">
+            <button id="rw-debug-close" class="button secondary">
+              Close
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <section id="view-settings" class="view">
         <div class="settings-card">
 
           <div class="section-title">Cloudflare Configuration</div>
@@ -194,14 +777,49 @@
               <span class="config-label">API Token</span>
               <strong id="config-token">Not configured</strong>
             </div>
+
+            <div>
+              <span class="config-label">Proxy</span>
+              <strong id="config-proxy">Not configured</strong>
+            </div>
+          </div>
+
+          <div class="cred-form">
+            <label>
+              <span>Account ID</span>
+              <input id="cred-account" type="text" autocomplete="off" placeholder="Your Cloudflare account ID">
+            </label>
+
+            <label>
+              <span>API Token</span>
+              <input id="cred-token" type="password" autocomplete="off" placeholder="A token with Workers + KV edit permissions">
+            </label>
+
+            <label>
+              <span>Proxy (optional)</span>
+              <input id="cred-proxy" type="text" autocomplete="off" placeholder="http://127.0.0.1:10808">
+            </label>
+
+            <div class="cred-actions">
+              <button id="cred-save-btn" class="button primary">
+                Save Credentials
+              </button>
+              <span id="cred-save-status" class="form-status"></span>
+            </div>
+
+            <div class="cred-actions">
+              <button id="cred-proxy-btn" class="button secondary">
+                Save Proxy
+              </button>
+              <span id="cred-proxy-status" class="form-status"></span>
+            </div>
           </div>
 
           <div class="info-box">
-            <strong>No credentials detected.</strong>
+            <strong>Permission hint.</strong>
             <p>
-              CloudPilot can still run in contract-preview mode.
-              Configure CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN
-              in the backend environment when you are ready.
+              The API token must allow editing Workers Scripts and KV Storage.
+              Existing deployments are reused across app restarts.
             </p>
           </div>
 
@@ -209,8 +827,183 @@
 
       </section>
 
+      <section id="view-config" class="view">
+
+        <div class="section-header">
+          <div>
+            <div class="section-title">Config Builder</div>
+            <div class="section-subtitle">
+              Build your personal Cyber Panel on Cloudflare in two steps
+            </div>
+          </div>
+
+          <button id="config-refresh" class="button secondary">
+            Refresh deployments
+          </button>
+        </div>
+
+        <div class="steps-bar">
+          <div class="step active" id="config-step-1">
+            <div class="step-index">1</div>
+            <div>
+              <div class="step-title">Connect &amp; Install</div>
+              <div class="step-sub">Cloudflare API key</div>
+            </div>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="step" id="config-step-2">
+            <div class="step-index">2</div>
+            <div>
+              <div class="step-title">Your Panel</div>
+              <div class="step-sub">Configs &amp; subscriptions</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="deploy-layout">
+
+          <div class="settings-card deploy-card" id="config-setup-card">
+            <div class="section-title">Step 1 · Connect &amp; install</div>
+            <div class="section-subtitle">
+              Enter your Cloudflare API key. Wish K E Cyber Panel automatically resolves
+              your account, prepares the workers.dev subdomain, creates a KV
+              namespace and deploys the worker script — no manual steps.
+            </div>
+
+            <div class="cred-form">
+              <label>
+                <span>Cloudflare API key</span>
+                <input id="config-api-token" type="password"
+                       autocomplete="off"
+                       placeholder="A token with Workers + KV edit permissions">
+              </label>
+
+              <label>
+                <span>Worker name</span>
+                <input id="config-worker-name" type="text"
+                       autocomplete="off"
+                       value="cyber-panel"
+                       pattern="[a-zA-Z0-9-]+">
+              </label>
+
+              <label>
+                <span>Proxy IP mode</span>
+                <select id="config-proxy-mode">
+                  <option value="proxyip">proxyip</option>
+                  <option value="domain">domain</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Proxy IPs (comma separated, optional)</span>
+                <input id="config-proxy-ips" type="text"
+                       autocomplete="off"
+                       placeholder="bpb.yousef.isegaro.com">
+              </label>
+
+              <label>
+                <span>DoH URL (optional)</span>
+                <input id="config-doh" type="text"
+                       autocomplete="off"
+                       placeholder="https://cloudflare-dns.com/dns-query">
+              </label>
+            </div>
+
+            <div class="cred-actions">
+              <button id="config-deploy-btn" class="button primary">
+                Install automatically
+              </button>
+              <span id="config-deploy-status" class="form-status"></span>
+            </div>
+
+            <div id="config-error" class="info-box error-box" hidden></div>
+
+            <div class="info-box" id="config-need-creds" hidden>
+              <strong>Tip.</strong>
+              <p>
+                Paste your API key above. Wish K E Cyber Panel resolves the account,
+                creates the KV namespace and deploys the worker automatically.
+              </p>
+            </div>
+          </div>
+
+          <div class="settings-card bpb-results" id="config-results" hidden>
+            <div class="section-title">Step 2 · Your panel</div>
+
+            <div class="panel-logo">
+              <div class="panel-logo-mark">
+                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                  <path d="M18 2.5 31.5 9.8v16.4L18 33.5 4.5 26.2V9.8z"
+                        stroke="rgba(255,255,255,.55)" stroke-width="1.4" fill="none"/>
+                  <path d="M18 2.5 31.5 9.8v16.4L18 33.5 4.5 26.2V9.8z"
+                        stroke="url(#glow)" stroke-width="1" fill="rgba(255,255,255,.05)" opacity=".8"/>
+                  <defs>
+                    <linearGradient id="glow" x1="4" y1="2" x2="32" y2="34" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#ffffff"/>
+                      <stop offset="1" stop-color="#ffffff" stop-opacity=".2"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M9 24.5 13 11.5l5 8.5 5-8.5 4 13"
+                        stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  <circle cx="27" cy="9" r="1.6" fill="#fff" opacity=".9"/>
+                  <circle cx="9" cy="27" r="1.3" fill="#fff" opacity=".6"/>
+                </svg>
+              </div>
+              <div class="panel-logo-text">
+                <div class="panel-logo-name">Wish K E Cyber Panel</div>
+                <div class="panel-logo-sub">SECURE PROXY PLATFORM</div>
+              </div>
+            </div>
+
+            <div class="section-subtitle config-host" id="config-host"></div>
+
+            <div class="link-group">
+              <div class="link-label">Panel</div>
+              <a id="config-panel-link" class="link-row" href="#" target="_blank"></a>
+            </div>
+
+            <div class="link-group">
+              <div class="link-label">Login</div>
+              <a id="config-login-link" class="link-row" href="#" target="_blank"></a>
+            </div>
+
+            <div class="section-title sub-title">Subscriptions</div>
+            <div id="config-subscriptions" class="subscription-grid"></div>
+
+            <div class="section-title sub-title">Credentials</div>
+            <div id="config-credentials" class="config-status"></div>
+          </div>
+
+        </div>
+
+        <div class="section-header">
+          <div>
+            <div class="section-title">Deployments</div>
+            <div class="section-subtitle">
+              Panels previously deployed from this machine
+            </div>
+          </div>
+        </div>
+
+        <div id="config-deployments-list" class="bpb-deployments"></div>
+
+        <div class="settings-card logs-box" id="config-logs" hidden>
+          <div class="section-title">Worker logs</div>
+          <div class="section-subtitle">
+            Live runtime exceptions and console logs captured from Cloudflare.
+          </div>
+          <div id="config-logs-content" class="logs-content"></div>
+          <div class="cred-actions">
+            <button id="config-logs-close" class="button secondary">
+              Close
+            </button>
+          </div>
+        </div>
+
+      </section>
+
       <footer>
-        <span>CloudPilot Control Plane</span>
+        <span>Wish K E Cyber Panel</span>
         <span id="data-mode">CONTRACT MODE</span>
       </footer>
 

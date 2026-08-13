@@ -5,16 +5,31 @@ Read-only control-plane endpoints for the desktop application.
 """
 
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
 
 from backend.providers.cloudflare.provider import (
     CloudflareProvider,
     CloudflareProviderError,
+)
+from backend.settings import (
+    cloudflare_proxy,
+    save_cloudflare_credentials,
+    save_cloudflare_proxy,
 )
 
 router = APIRouter(
     prefix="/api/v1/cloudflare",
     tags=["cloudflare-v1"],
 )
+
+
+class CredentialsRequest(BaseModel):
+    account_id: str = Field(min_length=1, max_length=64)
+    api_token: str = Field(min_length=1, max_length=256)
+
+
+class ProxyRequest(BaseModel):
+    proxy: str = Field(default="", max_length=512)
 
 
 def _provider() -> CloudflareProvider:
@@ -51,6 +66,41 @@ async def cloudflare_config():
         "configured": bool(account_id and api_token),
         "account_id_configured": bool(account_id),
         "api_token_configured": bool(api_token),
+        "proxy_configured": bool(cloudflare_proxy()),
+    }
+
+
+@router.post("/config")
+async def cloudflare_config_save(payload: CredentialsRequest):
+    """
+    Persist Cloudflare credentials from the desktop UI.
+
+    Credentials are written to the local .env and never echoed back.
+    """
+    save_cloudflare_credentials(
+        payload.account_id.strip(),
+        payload.api_token.strip(),
+    )
+
+    return {
+        "provider": "cloudflare",
+        "configured": True,
+    }
+
+
+@router.post("/config/proxy")
+async def cloudflare_proxy_save(payload: ProxyRequest):
+    """
+    Persist the outbound proxy used for Cloudflare API requests.
+
+    Empty string clears the explicit proxy and falls back to the
+    process environment HTTP(S)_PROXY variables.
+    """
+    save_cloudflare_proxy(payload.proxy.strip())
+
+    return {
+        "provider": "cloudflare",
+        "proxy_configured": bool(cloudflare_proxy()),
     }
 
 

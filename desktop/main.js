@@ -1,6 +1,7 @@
 const {
   app,
   BrowserWindow,
+  shell,
 } = require("electron");
 
 const path = require("path");
@@ -15,7 +16,19 @@ let backendProcess = null;
 let mainWindow = null;
 
 function getPythonCommand() {
-  return process.env.CLOUDPILOT_PYTHON || "python3";
+  if (process.env.CLOUDPILOT_PYTHON) {
+    return process.env.CLOUDPILOT_PYTHON;
+  }
+
+  const projectVenv = path.join(
+    __dirname,
+    "..",
+    ".venv",
+    process.platform === "win32" ? "Scripts" : "bin",
+    process.platform === "win32" ? "python.exe" : "python"
+  );
+
+  return projectVenv;
 }
 
 function startBackend() {
@@ -173,6 +186,20 @@ function createWindow() {
   mainWindow.loadFile(
     path.join(__dirname, "renderer", "index.html")
   );
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: "deny" };
+  });
+
+  mainWindow.webContents.on("will-navigate", (event, url) => {
+    const currentUrl = mainWindow.webContents.getURL();
+
+    if (url !== currentUrl && url.startsWith("http")) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
 
   mainWindow.on("closed", () => {
     mainWindow = null;

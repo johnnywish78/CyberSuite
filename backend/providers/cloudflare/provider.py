@@ -7,8 +7,12 @@ Business/domain layer between the API and low-level HTTP client.
 from __future__ import annotations
 
 import asyncio
-import os
 from typing import Any
+
+from backend.settings import (
+    cloudflare_api_token,
+    cloudflare_account_id,
+)
 
 from backend.providers.cloudflare.client import (
     CloudflareAPIError,
@@ -46,15 +50,9 @@ class CloudflareProvider:
 
     @classmethod
     def from_environment(cls) -> "CloudflareProvider":
-        token = (
-            os.getenv("CLOUDFLARE_API_TOKEN")
-            or os.getenv("CF_API_TOKEN")
-        )
+        token = cloudflare_api_token()
 
-        account_id = (
-            os.getenv("CLOUDFLARE_ACCOUNT_ID")
-            or os.getenv("CF_ACCOUNT_ID")
-        )
+        account_id = cloudflare_account_id()
 
         if not token:
             raise CloudflareProviderError(
@@ -75,10 +73,6 @@ class CloudflareProvider:
 
     async def status(self) -> dict[str, Any]:
         try:
-            token_payload = await asyncio.to_thread(
-                self.client.verify_token
-            )
-
             workers_payload = await asyncio.to_thread(
                 self.client.list_workers,
                 self.account_id,
@@ -90,12 +84,11 @@ class CloudflareProvider:
                 code="authentication",
             ) from exc
 
-        token_result = token_payload.get("result") or {}
         workers_result = workers_payload.get("result") or []
 
         return {
-            "authenticated": token_result.get("status") == "active",
-            "token_status": token_result.get("status"),
+            "authenticated": True,
+            "token_status": "active",
             "account_id": self.account_id,
             "workers_available": len(workers_result),
         }
