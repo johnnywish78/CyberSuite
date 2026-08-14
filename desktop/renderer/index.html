@@ -112,7 +112,7 @@
         </div>
 
         <div class="top-actions">
-          <span class="version">v0.1.0</span>
+          <span class="version" id="app-version">v0.1.0</span>
           <button id="theme-toggle" class="theme-toggle" title="Toggle light / dark mode">
             <span class="theme-dot"></span>
             <span id="theme-toggle-label">Dark</span>
@@ -855,6 +855,30 @@
               The API token must allow editing Workers Scripts and KV Storage.
               Existing deployments are reused across app restarts.
             </p>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="section-title">About</div>
+          <div class="section-subtitle">
+            CloudPilot — Wish K E Cyber Panel control plane.
+          </div>
+
+          <div class="config-status">
+            <div>
+              <span class="config-label">Version</span>
+              <strong id="about-version">v0.1.0</strong>
+            </div>
+
+            <div>
+              <span class="config-label">Backend</span>
+              <strong id="about-backend">127.0.0.1:8765</strong>
+            </div>
+
+            <div>
+              <span class="config-label">Data mode</span>
+              <strong id="about-mode">CONTRACT MODE</strong>
+            </div>
           </div>
         </div>
 

@@ -11,6 +11,7 @@ const AppState = {
     status: "starting", // starting | online | offline | error
     startedAt: null, // epoch ms of backend process start (for uptime)
     wasOnline: false,
+    version: null, // reported by the backend health endpoint
   },
   cloudflare: {
     status: "checking", // checking | connected | not-connected | error

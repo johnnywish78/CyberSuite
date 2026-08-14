@@ -85,6 +85,19 @@ async function checkBackend() {
   try {
     const health = await getJSON("/api/health");
     AppState.backend.status = "online";
+    AppState.backend.version = health.version || AppState.backend.version;
+    const versionEl = $("#app-version");
+    if (versionEl && AppState.backend.version) {
+      versionEl.textContent = `v${AppState.backend.version}`;
+    }
+    const aboutVersion = $("#about-version");
+    if (aboutVersion && AppState.backend.version) {
+      aboutVersion.textContent = `v${AppState.backend.version}`;
+    }
+    const aboutBackend = $("#about-backend");
+    if (aboutBackend) {
+      aboutBackend.textContent = API.replace(/^https?:\/\//, "");
+    }
     let started = Date.parse(health.started_at);
     if (Number.isNaN(started)) {
       started = Date.now() - (health.uptime_seconds || 0) * 1000;
@@ -103,7 +116,10 @@ async function checkBackend() {
     }
     return health;
   } catch (error) {
-    console.error("Backend unavailable:", error);
+    if (AppState.backend.wasOnline) {
+      console.error("Backend unavailable:", error);
+      addActivity("Backend connection lost", "error");
+    }
     AppState.backend.status = "offline";
     AppState.backend.startedAt = null;
 
@@ -188,6 +204,8 @@ function setCloudflareState(status, message) {
 function setDataMode(mode) {
   AppState.mode = mode;
   $("#data-mode").textContent = mode;
+  const aboutMode = $("#about-mode");
+  if (aboutMode) aboutMode.textContent = mode;
 }
 
 /* ------------------------------------------------------------
@@ -387,6 +405,10 @@ async function init() {
 
   updateSystemClock();
   setInterval(updateSystemClock, 1000);
+
+  /* Quiet backend health poll — keeps uptime and connection state
+     truthful when the backend restarts or crashes. */
+  setInterval(checkBackend, 10000);
 
   await checkBackend();
   await Promise.allSettled([
