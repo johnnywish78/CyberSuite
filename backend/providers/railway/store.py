@@ -13,9 +13,9 @@ import threading
 from pathlib import Path
 from typing import Any
 
-from backend.settings import ROOT_DIR
+from backend.settings import data_dir
 
-_DATA_DIR = ROOT_DIR / "backend" / "data"
+_DATA_DIR = data_dir()
 _DEFAULT_STORE_PATH = _DATA_DIR / "railway_deployments.json"
 
 
