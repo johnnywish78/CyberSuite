@@ -1,7 +1,10 @@
 """
 CloudPilot — Cloudflare API v1.
 
-Read-only control-plane endpoints for the desktop application.
+Thin HTTP adapters over the Cloudflare service layer: parsing,
+validation, provider wiring, error-to-status translation and credential
+persistence side effects live here; orchestration and result
+normalization live in `backend.services.cloudflare_service`.
 """
 
 from fastapi import APIRouter, HTTPException
@@ -11,8 +14,8 @@ from backend.providers.cloudflare.provider import (
     CloudflareProvider,
     CloudflareProviderError,
 )
+from backend.services import cloudflare_service
 from backend.settings import (
-    cloudflare_proxy,
     save_cloudflare_credentials,
     save_cloudflare_proxy,
 )
@@ -49,25 +52,7 @@ async def cloudflare_config():
 
     Secrets are never returned.
     """
-    import os
-
-    account_id = (
-        os.getenv("CLOUDFLARE_ACCOUNT_ID")
-        or os.getenv("CF_ACCOUNT_ID")
-    )
-
-    api_token = (
-        os.getenv("CLOUDFLARE_API_TOKEN")
-        or os.getenv("CF_API_TOKEN")
-    )
-
-    return {
-        "provider": "cloudflare",
-        "configured": bool(account_id and api_token),
-        "account_id_configured": bool(account_id),
-        "api_token_configured": bool(api_token),
-        "proxy_configured": bool(cloudflare_proxy()),
-    }
+    return cloudflare_service.get_config()
 
 
 @router.post("/config")
@@ -100,7 +85,7 @@ async def cloudflare_proxy_save(payload: ProxyRequest):
 
     return {
         "provider": "cloudflare",
-        "proxy_configured": bool(cloudflare_proxy()),
+        "proxy_configured": bool(cloudflare_service.get_config()["proxy_configured"]),
     }
 
 
@@ -112,10 +97,7 @@ async def cloudflare_status():
     provider = _provider()
 
     try:
-        return {
-            "provider": "cloudflare",
-            **await provider.status(),
-        }
+        return await cloudflare_service.get_status(provider)
     except CloudflareProviderError as exc:
         raise HTTPException(
             status_code=502,
@@ -131,30 +113,23 @@ async def cloudflare_workers():
     provider = _provider()
 
     try:
-        workers = await provider.list_workers()
+        return await cloudflare_service.list_workers(provider)
     except CloudflareProviderError as exc:
         raise HTTPException(
             status_code=502,
             detail=f"Cloudflare Worker discovery failed: {exc}",
         ) from exc
 
-    return {
-        "provider": "cloudflare",
-        "account_id": provider.account_id,
-        "count": len(workers),
-        "workers": workers,
-    }
-
 
 @router.get("/workers/{worker_name}")
 async def cloudflare_worker(worker_name: str):
     """
-    Return one Worker.
+    Return one Worker together with its deployment history.
     """
     provider = _provider()
 
     try:
-        worker = await provider.get_worker(worker_name)
+        worker = await cloudflare_service.get_worker(provider, worker_name)
     except CloudflareProviderError as exc:
         status_code = 404 if exc.code == "not_found" else 502
 
@@ -164,7 +139,9 @@ async def cloudflare_worker(worker_name: str):
         ) from exc
 
     try:
-        deployments = await provider.list_deployments(worker_name)
+        deployments = await cloudflare_service.list_deployments(
+            provider, worker_name
+        )
     except CloudflareProviderError as exc:
         raise HTTPException(
             status_code=502,
@@ -173,8 +150,8 @@ async def cloudflare_worker(worker_name: str):
 
     return {
         "provider": "cloudflare",
-        "worker": worker,
-        "deployments": deployments,
+        "worker": worker["worker"],
+        "deployments": deployments["deployments"],
     }
 
 
@@ -186,7 +163,7 @@ async def cloudflare_worker_deployments(worker_name: str):
     provider = _provider()
 
     try:
-        deployments = await provider.list_deployments(worker_name)
+        return await cloudflare_service.list_deployments(provider, worker_name)
     except CloudflareProviderError as exc:
         status_code = 404 if exc.code == "not_found" else 502
 
@@ -194,10 +171,3 @@ async def cloudflare_worker_deployments(worker_name: str):
             status_code=status_code,
             detail=f"Cloudflare deployment discovery failed: {exc}",
         ) from exc
-
-    return {
-        "provider": "cloudflare",
-        "worker_name": worker_name,
-        "count": len(deployments),
-        "deployments": deployments,
-    }

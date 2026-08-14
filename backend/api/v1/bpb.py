@@ -1,7 +1,10 @@
 """
 CloudPilot — BPB Panel API v1.
 
-Deploy and manage a personal BPB Worker Panel on Cloudflare.
+Thin HTTP adapters over the BPB service layer: parsing, validation,
+provider wiring, error-to-status translation and credential persistence
+side effects live here; orchestration and result normalization live in
+`backend.services.bpb_service`.
 """
 
 from typing import Annotated
@@ -18,6 +21,7 @@ from backend.providers.cloudflare.client import CloudflareClient
 from backend.providers.cloudflare.provider import (
     CloudflareProviderError,
 )
+from backend.services import bpb_service
 from backend.settings import (
     cloudflare_api_token,
     save_cloudflare_credentials,
@@ -75,9 +79,10 @@ async def bpb_deploy(payload: DeployRequest):
     )
 
     try:
-        record = await provider.deploy(
+        result = await bpb_service.deploy(
+            provider,
             payload.worker_name,
-            options=options,
+            options,
         )
     except BpbPanelError as exc:
         status_code = 503 if exc.step == "configuration" else 502
@@ -94,14 +99,11 @@ async def bpb_deploy(payload: DeployRequest):
 
     if payload.api_token.strip():
         save_cloudflare_credentials(
-            record.get("account_id") or "",
+            result["deployment"].get("account_id") or "",
             payload.api_token.strip(),
         )
 
-    return {
-        "provider": "bpb",
-        "deployment": record,
-    }
+    return result
 
 
 @router.get("/deployments")
@@ -112,18 +114,12 @@ async def bpb_deployments():
     provider = _provider()
 
     try:
-        records = await provider.deployments()
+        return await bpb_service.list_deployments(provider)
     except BpbPanelError as exc:
         raise HTTPException(
             status_code=503,
             detail=str(exc),
         ) from exc
-
-    return {
-        "provider": "bpb",
-        "count": len(records),
-        "deployments": records,
-    }
 
 
 @router.get("/deployments/{worker_name}")
@@ -134,23 +130,20 @@ async def bpb_deployment(worker_name: str):
     provider = _provider()
 
     try:
-        record = await provider.get(worker_name)
+        result = await bpb_service.get_deployment(provider, worker_name)
     except BpbPanelError as exc:
         raise HTTPException(
             status_code=503,
             detail=str(exc),
         ) from exc
 
-    if not record:
+    if not result["deployment"]:
         raise HTTPException(
             status_code=404,
             detail=f"Deployment '{worker_name}' was not found.",
         )
 
-    return {
-        "provider": "bpb",
-        "deployment": record,
-    }
+    return result
 
 
 @router.get("/deployments/{worker_name}/logs")
@@ -162,7 +155,7 @@ async def bpb_deployment_logs(worker_name: str):
     provider = _provider()
 
     try:
-        record = await provider.get(worker_name)
+        record = await bpb_service.get_record(provider, worker_name)
     except BpbPanelError as exc:
         raise HTTPException(
             status_code=503,
@@ -184,14 +177,9 @@ async def bpb_deployment_logs(worker_name: str):
         )
 
     try:
-        result = await provider.tail_logs(account_id, worker_name)
+        return await bpb_service.tail_logs(provider, account_id, worker_name)
     except BpbPanelError as exc:
         raise HTTPException(
             status_code=502,
             detail=str(exc),
         ) from exc
-
-    return {
-        "provider": "bpb",
-        **result,
-    }

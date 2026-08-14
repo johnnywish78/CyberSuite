@@ -9,6 +9,10 @@ from backend.api.v1.bpb import router as bpb_router
 from backend.api.v1.cloudflare import router as cloudflare_router
 from backend.api.v1.network import router as network_router
 from backend.api.v1.railway import router as railway_router
+from backend.settings import (
+    cors_origins,
+    service_version,
+)
 
 
 STARTED_AT = time.time()
@@ -16,13 +20,13 @@ STARTED_AT = time.time()
 
 app = FastAPI(
     title="CloudPilot Backend",
-    version="0.1.0",
+    version=service_version(),
     description="CloudPilot local control-plane backend",
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins(),
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,7 +45,7 @@ async def health():
     return {
         "status": "ok",
         "service": "cloudpilot-backend",
-        "version": "0.1.0",
+        "version": service_version(),
         "uptime_seconds": uptime,
         "started_at": time.strftime(
             "%Y-%m-%dT%H:%M:%SZ", time.gmtime(STARTED_AT)

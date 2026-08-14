@@ -8,8 +8,8 @@ const path = require("path");
 const { spawn } = require("child_process");
 const http = require("http");
 
-const BACKEND_HOST = "127.0.0.1";
-const BACKEND_PORT = 8765;
+const BACKEND_HOST = process.env.CLOUDPILOT_BACKEND_HOST || "127.0.0.1";
+const BACKEND_PORT = Number(process.env.CLOUDPILOT_BACKEND_PORT) || 8765;
 const BACKEND_HEALTH_PATH = "/api/health";
 
 let backendProcess = null;

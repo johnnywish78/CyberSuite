@@ -1,7 +1,10 @@
 """
 CloudPilot — Avaco Railway Relay API v1.
 
-Deploy and manage an XHTTP relay on Railway from the desktop UI.
+Thin HTTP adapters over the Railway service layer: parsing, validation,
+provider wiring, error-to-status translation, relay-key generation and
+credential persistence side effects live here; orchestration and result
+normalization live in `backend.services.railway_service`.
 """
 
 import secrets
@@ -14,6 +17,7 @@ from backend.providers.railway.provider import (
     RailwayRelayError,
     RelayOptions,
 )
+from backend.services import railway_service
 from backend.settings import (
     railway_api_token,
     save_railway_credentials,
@@ -69,11 +73,7 @@ async def railway_config():
 
     Secrets are never returned.
     """
-    return {
-        "provider": "railway",
-        "configured": bool(railway_api_token()),
-        "api_token_configured": bool(railway_api_token()),
-    }
+    return railway_service.get_config()
 
 
 @router.post("/config")
@@ -97,18 +97,12 @@ async def railway_status():
     provider = _provider()
 
     try:
-        me = await provider.whoami()
+        return await railway_service.get_status(provider)
     except RailwayRelayError as exc:
         raise HTTPException(
             status_code=502,
             detail=f"Railway status check failed: {exc}",
         ) from exc
-
-    return {
-        "provider": "railway",
-        "authenticated": True,
-        "account": me,
-    }
 
 
 @router.get("/regions")
@@ -119,18 +113,12 @@ async def railway_regions():
     provider = _provider()
 
     try:
-        regions = await provider.regions()
+        return await railway_service.get_regions(provider)
     except RailwayRelayError as exc:
         raise HTTPException(
             status_code=502,
             detail=f"Railway region lookup failed: {exc}",
         ) from exc
-
-    return {
-        "provider": "railway",
-        "count": len(regions),
-        "regions": regions,
-    }
 
 
 @router.post("/deploy")
@@ -151,7 +139,8 @@ async def railway_deploy(payload: DeployRequest):
     )
 
     try:
-        record = await provider.deploy(
+        result = await railway_service.deploy(
+            provider,
             payload.relay_name,
             options,
             api_token=payload.api_token,
@@ -167,10 +156,7 @@ async def railway_deploy(payload: DeployRequest):
     if payload.api_token.strip():
         save_railway_credentials(payload.api_token.strip())
 
-    return {
-        "provider": "railway",
-        "deployment": record,
-    }
+    return result
 
 
 @router.get("/deployments")
@@ -181,18 +167,12 @@ async def railway_deployments():
     provider = _provider()
 
     try:
-        records = await provider.deployments()
+        return await railway_service.list_deployments(provider)
     except RailwayRelayError as exc:
         raise HTTPException(
             status_code=503,
             detail=str(exc),
         ) from exc
-
-    return {
-        "provider": "railway",
-        "count": len(records),
-        "deployments": records,
-    }
 
 
 @router.get("/deployments/{relay_name}")
@@ -203,23 +183,20 @@ async def railway_deployment(relay_name: str):
     provider = _provider()
 
     try:
-        record = await provider.get(relay_name)
+        result = await railway_service.get_deployment(provider, relay_name)
     except RailwayRelayError as exc:
         raise HTTPException(
             status_code=503,
             detail=str(exc),
         ) from exc
 
-    if not record:
+    if not result["deployment"]:
         raise HTTPException(
             status_code=404,
             detail=f"Relay '{relay_name}' was not found.",
         )
 
-    return {
-        "provider": "railway",
-        "deployment": record,
-    }
+    return result
 
 
 @router.post("/deployments/{relay_name}/redeploy")
@@ -230,7 +207,7 @@ async def railway_redeploy(relay_name: str):
     provider = _provider()
 
     try:
-        record = await provider.refresh_deployment(relay_name)
+        return await railway_service.redeploy(provider, relay_name)
     except RailwayRelayError as exc:
         status_code = 404 if exc.step == "not_found" else 502
 
@@ -238,11 +215,6 @@ async def railway_redeploy(relay_name: str):
             status_code=status_code,
             detail=str(exc),
         ) from exc
-
-    return {
-        "provider": "railway",
-        "deployment": record,
-    }
 
 
 @router.post("/deployments/{relay_name}/debug")
@@ -253,7 +225,7 @@ async def railway_debug(relay_name: str):
     provider = _provider()
 
     try:
-        result = await provider.debug_status(relay_name)
+        return await railway_service.debug(provider, relay_name)
     except RailwayRelayError as exc:
         status_code = 404 if exc.step == "not_found" else 502
 
@@ -261,11 +233,6 @@ async def railway_debug(relay_name: str):
             status_code=status_code,
             detail=str(exc),
         ) from exc
-
-    return {
-        "provider": "railway",
-        **result,
-    }
 
 
 @router.delete("/deployments/{relay_name}")
@@ -276,14 +243,14 @@ async def railway_delete(relay_name: str):
     provider = _provider()
 
     try:
-        removed = await provider.delete(relay_name)
+        result = await railway_service.delete(provider, relay_name)
     except RailwayRelayError as exc:
         raise HTTPException(
             status_code=502,
             detail=str(exc),
         ) from exc
 
-    if not removed:
+    if not result["removed"]:
         raise HTTPException(
             status_code=404,
             detail=f"Relay '{relay_name}' was not found.",
