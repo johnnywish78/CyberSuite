@@ -7,5 +7,21 @@ settings.json
 backend/data/
 node_modules/
 dist/
-.DS_Store
+build/
+release/
 *.log
+.DS_Store
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.apk
+
+# PyInstaller
+*.spec.bak
+
+# Electron-builder
+*.blockmap
+*.yml.bak

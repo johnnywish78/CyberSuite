@@ -6,25 +6,57 @@
   "scripts": {
     "start": "electron . --no-sandbox",
     "dev": "electron . --no-sandbox --dev",
-    "build": "electron-builder --linux deb AppImage"
+    "version:sync": "node scripts/sync-version.js",
+    "icons": "node scripts/generate-icons.js",
+    "backend:build": "pyinstaller --clean --noconfirm packaging/backend.spec && node scripts/fix-backend-dist.js",
+    "build": "npm run build:linux",
+    "build:linux": "npm run version:sync && npm run icons && npm run backend:build && electron-builder --linux deb AppImage",
+    "build:win": "npm run version:sync && npm run icons && npm run backend:build && electron-builder --win nsis portable"
   },
   "author": "Johnny",
   "license": "MIT",
-  "dependencies": {
-    "electron": "^30.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "electron": "^30.0.0",
     "electron-builder": "^24.13.3"
   },
   "build": {
     "appId": "com.johnny.cloudpilot",
     "productName": "Wish K E Cyber Panel",
+    "executableName": "cloudpilot",
+    "directories": {
+      "output": "release"
+    },
+    "artifactName": "cloudpilot-${version}-${os}-${arch}.${ext}",
+    "files": [
+      "desktop/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "dist/backend",
+        "to": "backend"
+      }
+    ],
     "linux": {
       "target": [
         "deb",
         "AppImage"
       ],
-      "category": "Utility"
+      "icon": "icons/icon-512.png",
+      "category": "Utility",
+      "maintainer": "Johnny"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "icons/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }
