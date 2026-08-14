@@ -23,13 +23,14 @@ const AppState = {
 
 /* View registry — titles + eyebrow shown in the global header. */
 const VIEW_CONFIG = {
-  dashboard: { title: "Dashboard", eyebrow: "CONTROL" },
+  dashboard: { title: "Dashboard", eyebrow: null },
   workers: { title: "Workers", eyebrow: "CLOUDFLARE" },
   deployments: { title: "Deployments", eyebrow: "CLOUDFLARE" },
   config: { title: "Config Builder", eyebrow: "CLOUDFLARE" },
-  network: { title: "Network Checker", eyebrow: "NETWORK" },
-  railway: { title: "Railway Relay", eyebrow: "NETWORK" },
-  settings: { title: "Settings", eyebrow: "SYSTEM" },
+  network: { title: "Network Checker", eyebrow: null },
+  railway: { title: "Railway Relay", eyebrow: null },
+  speedtest: { title: "Speedtest", eyebrow: null },
+  settings: { title: "Settings", eyebrow: null },
 };
 
 /* Appearance storage key (DARK / LIGHT only). */

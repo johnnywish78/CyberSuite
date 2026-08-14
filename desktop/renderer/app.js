@@ -41,7 +41,10 @@ function initTheme() {
    ------------------------------------------------------------ */
 function updateSystemClock() {
   const now = new Date();
+  /* en-GB gives a 24-hour clock (no AM/PM needed); the weekday is
+     prepended to the date. */
   $("#sys-date").textContent = now.toLocaleDateString("en-GB", {
+    weekday: "short",
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -62,6 +65,18 @@ function updateSystemClock() {
 /* ------------------------------------------------------------
    Navigation
    ------------------------------------------------------------ */
+/* Official Cloudflare brand mark (orange cloud, inline SVG) + wordmark
+   in a close sans stack. Cloudflare Sans is proprietary and cannot be
+   bundled, so the wordmark uses a visually-close free/system font. */
+const CLOUDFLARE_LOGO_MARKUP = `
+  <svg class="cf-logo-cloud" viewBox="0 0 24 24" fill="none"
+       xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path fill="#F6821F"
+          d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+  </svg>
+  <span class="cf-logo-word">Cloudflare</span>
+`;
+
 function showView(name) {
   document.querySelectorAll(".view").forEach((view) => {
     view.classList.toggle("active", view.id === `view-${name}`);
@@ -71,8 +86,56 @@ function showView(name) {
   });
   const cfg = VIEW_CONFIG[name] || VIEW_CONFIG.dashboard;
   $("#page-title").textContent = cfg.title;
-  $("#page-eyebrow").textContent = cfg.eyebrow;
+  const eyebrow = $("#page-eyebrow");
+  if (cfg.eyebrow === "CLOUDFLARE") {
+    eyebrow.style.display = "";
+    eyebrow.classList.add("eyebrow-logo");
+    eyebrow.innerHTML = CLOUDFLARE_LOGO_MARKUP;
+  } else if (cfg.eyebrow) {
+    eyebrow.style.display = "";
+    eyebrow.classList.remove("eyebrow-logo");
+    eyebrow.textContent = cfg.eyebrow;
+  } else {
+    eyebrow.style.display = "none";
+    eyebrow.classList.remove("eyebrow-logo");
+    eyebrow.textContent = "";
+  }
+
+  /* Ookla Speedtest is rendered by a native WebContentsView overlaid on
+     the panel (webviews render at a stuck default size in this app).
+     The view is shown/hidden and positioned from here. */
+  if (name === "speedtest") {
+    const api = window.cloudpilot && window.cloudpilot.speedtest;
+    if (api) {
+      const host = $("#speedtest-host");
+      const rect = host.getBoundingClientRect();
+      api.show({
+        x: Math.round(rect.x),
+        y: Math.round(rect.y),
+        width: Math.round(rect.width),
+        height: Math.round(rect.height),
+      });
+    }
+  } else if (window.cloudpilot && window.cloudpilot.speedtest) {
+    window.cloudpilot.speedtest.hide();
+  }
 }
+
+/* Keep the overlaid speedtest panel aligned when the window resizes. */
+window.addEventListener("resize", () => {
+  const api = window.cloudpilot && window.cloudpilot.speedtest;
+  if (!api || !document.querySelector("#view-speedtest").classList.contains("active")) {
+    return;
+  }
+  const host = $("#speedtest-host");
+  const rect = host.getBoundingClientRect();
+  api.show({
+    x: Math.round(rect.x),
+    y: Math.round(rect.y),
+    width: Math.round(rect.width),
+    height: Math.round(rect.height),
+  });
+});
 
 /* ------------------------------------------------------------
    Backend status — ONE source of truth for backend state.
@@ -385,6 +448,11 @@ function bindNavigation() {
   $("#net-netlify-btn").addEventListener("click", runNetlify);
   $("#net-diag-btn").addEventListener("click", runDiag);
 
+  /* Speedtest — open the Ookla page in the system browser as a fallback */
+  $("#speedtest-open").addEventListener("click", () => {
+    window.open("https://www.speedtest.net/");
+  });
+
   /* Railway */
   $("#rw-save-token-btn").addEventListener("click", saveRailwayToken);
   $("#rw-deploy-btn").addEventListener("click", deployRailway);
@@ -402,6 +470,7 @@ function bindNavigation() {
 async function init() {
   initTheme();
   bindNavigation();
+  showView("dashboard");
 
   updateSystemClock();
   setInterval(updateSystemClock, 1000);

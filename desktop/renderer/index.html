@@ -16,17 +16,14 @@
 
     <aside class="sidebar">
 
-      <!-- A. BRAND / IDENTITY REGION
-           Reserved for the future Avatar + branding. The Avatar artwork
-           is intentionally left untouched in this phase. -->
+      <!-- A. BRAND / IDENTITY REGION — user's personal avatar (circular)
+           with the Wish K E 1978 / CyberPanel identity below it. -->
       <div class="sidebar-identity">
-        <div class="brand">
-          <div class="brand-mark">W</div>
-          <div>
-            <div class="brand-name" data-text="WISH K E CYBER PANEL">WISH K E CYBER PANEL</div>
-            <div class="brand-sub">CONTROL PLANE</div>
-          </div>
+        <div class="profile-avatar-wrap">
+          <img class="profile-avatar" src="avatar2.jpg" alt="Profile avatar">
         </div>
+        <div class="profile-name">Wish K E 1978</div>
+        <div class="profile-sub">CyberPanel</div>
       </div>
 
       <!-- B. NAVIGATION REGION -->
@@ -66,6 +63,10 @@
             <span class="nav-icon">⇶</span>
             Railway Relay
           </button>
+          <button class="nav-item" data-view="speedtest">
+            <span class="nav-icon">◔</span>
+            Speedtest
+          </button>
         </div>
 
         <div class="nav-group">
@@ -96,7 +97,7 @@
 
       <header class="topbar">
         <div>
-          <div class="eyebrow" id="page-eyebrow">CONTROL</div>
+          <div class="eyebrow" id="page-eyebrow"></div>
           <h1 id="page-title">Dashboard</h1>
         </div>
 
@@ -791,6 +792,27 @@
           <pre id="rw-debug-content" class="logs-content"></pre>
           <div class="cred-actions">
             <button id="rw-debug-close" class="button secondary">Close</button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================== SPEEDTEST ===================== -->
+      <section id="view-speedtest" class="view">
+
+        <div class="section-header">
+          <div>
+            <div class="section-title">Speedtest</div>
+            <div class="section-subtitle">
+              Powered by Speedtest by Ookla — download, upload, ping and more
+            </div>
+          </div>
+          <button id="speedtest-open" class="button secondary">Open in browser</button>
+        </div>
+
+        <div class="speedtest-card">
+          <div id="speedtest-host" class="speedtest-host">
+            <div class="speedtest-placeholder">Loading Speedtest by Ookla…</div>
           </div>
         </div>
 

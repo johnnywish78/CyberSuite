@@ -1,7 +1,10 @@
 const {
   app,
   BrowserWindow,
+  ipcMain,
+  session,
   shell,
+  WebContentsView,
 } = require("electron");
 
 const path = require("path");
@@ -16,6 +19,7 @@ const BACKEND_RESTART_MAX = 2;
 let backendProcess = null;
 let backendPid = null;
 let mainWindow = null;
+let speedtestView = null;
 let quitting = false;
 let restartAttempts = 0;
 
@@ -326,13 +330,106 @@ function createWindow() {
 
   mainWindow.on("closed", () => {
     mainWindow = null;
+    if (speedtestView && !speedtestView.webContents.isDestroyed()) {
+      speedtestView.webContents.destroy();
+      speedtestView = null;
+    }
   });
+}
+
+/* --- Ookla Speedtest (native overlay view) ---
+   A <webview> in this app renders at its default size regardless of
+   the element's layout, so Speedtest by Ookla is shown in a native
+   WebContentsView positioned over the speedtest panel area. */
+
+function ensureSpeedtestView() {
+  if (speedtestView) {
+    return speedtestView;
+  }
+
+  speedtestView = new WebContentsView({
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+
+  speedtestView.setBackgroundColor("#0a0e17");
+
+  /* Keep the panel on speedtest.net; any other navigation or popup is
+     opened in the system browser instead. */
+  speedtestView.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: "deny" };
+  });
+  speedtestView.webContents.on("will-navigate", (event, url) => {
+    if (!/^https:\/\/([^/]*\.)?speedtest\.net\//.test(url)) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
+
+  speedtestView.webContents.loadURL("https://www.speedtest.net/");
+  return speedtestView;
+}
+
+function positionSpeedtest(event, rect) {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win || win.isDestroyed()) {
+    return;
+  }
+
+  const view = ensureSpeedtestView();
+  win.contentView.addChildView(view);
+
+  view.setBounds({
+    x: Math.max(0, Math.round(rect.x)),
+    y: Math.max(0, Math.round(rect.y)),
+    width: Math.max(0, Math.round(rect.width)),
+    height: Math.max(0, Math.round(rect.height)),
+  });
+  view.setVisible(true);
+}
+
+function hideSpeedtest() {
+  if (speedtestView) {
+    speedtestView.setVisible(false);
+  }
+}
+
+function registerSpeedtestIpc() {
+  ipcMain.on("speedtest:show", positionSpeedtest);
+  ipcMain.on("speedtest:hide", hideSpeedtest);
+}
+
+function allowSpeedtestEmbedding(details, callback) {
+  if (!/^https:\/\/([^/]*\.)?speedtest\.net\/?/i.test(details.url)) {
+    callback({});
+    return;
+  }
+  const headers = details.responseHeaders || {};
+  for (const key of Object.keys(headers)) {
+    const lower = key.toLowerCase();
+    if (lower === "x-frame-options" || lower === "content-security-policy") {
+      delete headers[key];
+    }
+  }
+  callback({ responseHeaders: headers });
 }
 
 async function bootstrap() {
   try {
     console.log("========== CloudPilot ==========");
     console.log(`[shell] starting backend (${BACKEND_HOST}:${BACKEND_PORT})...`);
+
+    // The in-panel Ookla Speedtest runs in a native WebContentsView.
+    // speedtest.net normally forbids framing (X-Frame-Options: DENY), so
+    // those headers are stripped for its responses only.
+    session.defaultSession.webRequest.onHeadersReceived(
+      allowSpeedtestEmbedding
+    );
+    registerSpeedtestIpc();
 
     await startBackend();
 
