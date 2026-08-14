@@ -1,3 +1,5 @@
+import time
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -7,6 +9,9 @@ from backend.api.v1.bpb import router as bpb_router
 from backend.api.v1.cloudflare import router as cloudflare_router
 from backend.api.v1.network import router as network_router
 from backend.api.v1.railway import router as railway_router
+
+
+STARTED_AT = time.time()
 
 
 app = FastAPI(
@@ -31,8 +36,14 @@ app.include_router(railway_router)
 
 @app.get("/api/health")
 async def health():
+    uptime = int(time.time() - STARTED_AT)
+
     return {
         "status": "ok",
         "service": "cloudpilot-backend",
         "version": "0.1.0",
+        "uptime_seconds": uptime,
+        "started_at": time.strftime(
+            "%Y-%m-%dT%H:%M:%SZ", time.gmtime(STARTED_AT)
+        ),
     }

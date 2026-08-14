@@ -1,7 +1,16 @@
 "use strict";
 
+/* ============================================================
+   Wish K E Cyber Panel — Renderer
+   Architecture: centralized app state, reusable components,
+   per-module renderers. All existing functionality is preserved.
+   ============================================================ */
+
 const API = window.cloudpilot?.backendUrl || "http://127.0.0.1:8765";
 
+/* ------------------------------------------------------------
+   Contract fallback data (used when Cloudflare is not connected)
+   ------------------------------------------------------------ */
 const CONTRACT_WORKERS = [
   {
     name: "edge-router",
@@ -62,219 +71,42 @@ const CONTRACT_DEPLOYMENTS = [
   },
 ];
 
+/* ------------------------------------------------------------
+   Centralized application state.
+   Every UI component consumes this state — there is exactly ONE
+   source of truth for backend and Cloudflare connection status.
+   ------------------------------------------------------------ */
+const AppState = {
+  backend: {
+    status: "starting", // starting | online | offline | error
+    startedAt: null, // epoch ms of backend process start (for uptime)
+    wasOnline: false,
+  },
+  cloudflare: {
+    status: "checking", // checking | connected | not-connected | error
+  },
+  workers: null, // null = unknown, [] = empty, [..] = data
+  deployments: null,
+  mode: "CONTRACT", // CONTRACT MODE | LIVE API | ERROR
+};
+
+/* ------------------------------------------------------------
+   View registry — titles + eyebrow shown in the global header.
+   ------------------------------------------------------------ */
+const VIEW_CONFIG = {
+  dashboard: { title: "Dashboard", eyebrow: "CONTROL" },
+  workers: { title: "Workers", eyebrow: "CLOUDFLARE" },
+  deployments: { title: "Deployments", eyebrow: "CLOUDFLARE" },
+  config: { title: "Config Builder", eyebrow: "CLOUDFLARE" },
+  network: { title: "Network Checker", eyebrow: "NETWORK" },
+  railway: { title: "Railway Relay", eyebrow: "NETWORK" },
+  settings: { title: "Settings", eyebrow: "SYSTEM" },
+};
+
+/* ------------------------------------------------------------
+   Small helpers
+   ------------------------------------------------------------ */
 const $ = (selector) => document.querySelector(selector);
-
-function showView(name) {
-  document.querySelectorAll(".view").forEach((view) => {
-    view.classList.toggle("active", view.id === `view-${name}`);
-  });
-
-  document.querySelectorAll(".nav-item").forEach((item) => {
-    item.classList.toggle(
-      "active",
-      item.dataset.view === name
-    );
-  });
-
-  const titles = {
-    dashboard: "Dashboard",
-    workers: "Workers",
-    deployments: "Deployments",
-    config: "Config Builder",
-    network: "Network Checker",
-    railway: "Railway Relay",
-    settings: "Settings",
-  };
-
-  $("#page-title").textContent = titles[name] || "Dashboard";
-}
-
-async function getJSON(path) {
-  const response = await fetch(`${API}${path}`);
-
-  if (!response.ok) {
-    throw new Error(
-      `${response.status}: ${await response.text()}`
-    );
-  }
-
-  return response.json();
-}
-
-async function postJSON(path, body) {
-  const response = await fetch(`${API}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-
-  const text = await response.text();
-
-  if (!response.ok) {
-    throw new Error(
-      `${response.status}: ${text}`
-    );
-  }
-
-  return text ? JSON.parse(text) : {};
-}
-
-function renderWorkers(workers) {
-  $("#dashboard-workers").innerHTML = workers.map((worker) => `
-    <div class="worker-card">
-      <div class="worker-name">${escapeHTML(worker.name)}</div>
-      <div class="worker-meta">
-        <span>${worker.compatibility_date || "No compatibility date"}</span>
-        <span class="badge">
-          ${worker.workers_dev_enabled ? "ACTIVE" : "DISABLED"}
-        </span>
-      </div>
-    </div>
-  `).join("");
-
-  $("#workers-list").innerHTML = `
-    <div class="table-row table-head">
-      <div>Name</div>
-      <div>Compatibility</div>
-      <div>Workers.dev</div>
-      <div>Status</div>
-    </div>
-    ${workers.map((worker) => `
-      <div class="table-row">
-        <div>${escapeHTML(worker.name)}</div>
-        <div>${worker.compatibility_date || "—"}</div>
-        <div>
-          ${worker.workers_dev_enabled ? "Enabled" : "Disabled"}
-        </div>
-        <div>
-          <span class="badge">READY</span>
-        </div>
-      </div>
-    `).join("")}
-  `;
-}
-
-function renderDeployments(deployments) {
-  $("#deployments-list").innerHTML = `
-    <div class="table-row table-head">
-      <div>Worker</div>
-      <div>Version</div>
-      <div>Status</div>
-      <div>Created</div>
-    </div>
-    ${deployments.map((deployment) => `
-      <div class="table-row">
-        <div>${escapeHTML(deployment.worker_name)}</div>
-        <div>${escapeHTML(deployment.version_id || "—")}</div>
-        <div>
-          <span class="badge">
-            ${escapeHTML(deployment.status || "UNKNOWN")}
-          </span>
-        </div>
-        <div>${formatDate(deployment.created_on)}</div>
-      </div>
-    `).join("")}
-  `;
-}
-
-function renderContractMode() {
-  $("#data-mode").textContent = "CONTRACT MODE";
-
-  $("#stat-connection").textContent = "Not Connected";
-  $("#stat-connection").classList.add("muted");
-
-  $("#stat-workers").textContent = CONTRACT_WORKERS.length;
-  $("#stat-deployments").textContent = CONTRACT_DEPLOYMENTS.length;
-
-  renderWorkers(CONTRACT_WORKERS);
-  renderDeployments(CONTRACT_DEPLOYMENTS);
-}
-
-async function loadCloudflare() {
-  try {
-    const config = await getJSON("/api/v1/cloudflare/config");
-
-    $("#config-account").textContent =
-      config.account_id_configured
-        ? "Configured"
-        : "Not configured";
-
-    $("#config-token").textContent =
-      config.api_token_configured
-        ? "Configured"
-        : "Not configured";
-
-    $("#config-proxy").textContent =
-      config.proxy_configured ? "Configured" : "Not configured";
-
-    if (!config.configured) {
-      renderContractMode();
-      return;
-    }
-
-    const [status, workers] = await Promise.all([
-      getJSON("/api/v1/cloudflare/status"),
-      getJSON("/api/v1/cloudflare/workers"),
-    ]);
-
-    $("#data-mode").textContent = "LIVE API";
-    $("#stat-connection").textContent =
-      status.authenticated ? "Connected" : "Inactive";
-
-    $("#stat-connection").classList.remove("muted");
-
-    renderWorkers(workers.workers || []);
-
-    let deployments = [];
-
-    for (const worker of workers.workers || []) {
-      try {
-        const data = await getJSON(
-          `/api/v1/cloudflare/workers/${encodeURIComponent(worker.name)}/deployments`
-        );
-
-        deployments.push(
-          ...(data.deployments || []).map((item) => ({
-            ...item,
-            worker_name: worker.name,
-          }))
-        );
-      } catch {
-        // Keep the UI usable if one worker deployment endpoint fails.
-      }
-    }
-
-    $("#stat-workers").textContent =
-      (workers.workers || []).length;
-
-    $("#stat-deployments").textContent =
-      deployments.length;
-
-    renderDeployments(deployments);
-  } catch (error) {
-    console.warn("Cloudflare API unavailable:", error);
-
-    $("#data-mode").textContent = "ERROR";
-    $("#stat-connection").textContent = "Unavailable";
-    $("#stat-connection").classList.add("muted");
-  }
-}
-
-async function checkBackend() {
-  try {
-    const health = await getJSON("/api/health");
-
-    $("#backend-status").textContent = "Online";
-    $("#stat-backend").textContent = "Online";
-
-    return health;
-  } catch (error) {
-    console.error("Backend unavailable:", error);
-
-    $("#backend-status").textContent = "Offline";
-    $("#stat-backend").textContent = "Offline";
-  }
-}
 
 function escapeHTML(value) {
   return String(value ?? "")
@@ -287,16 +119,523 @@ function escapeHTML(value) {
 
 function formatDate(value) {
   if (!value) return "—";
-
   const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
+  if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString();
 }
 
+function formatUptime(totalSeconds) {
+  if (totalSeconds == null || totalSeconds < 0) return "--:--:--";
+  const s = Math.floor(totalSeconds);
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  const pad = (n) => String(n).padStart(2, "0");
+  if (d > 0) return `${d}d ${pad(h)}h ${pad(m)}m ${pad(sec)}s`;
+  return `${pad(h)}h ${pad(m)}m ${pad(sec)}s`;
+}
+
+async function getJSON(path) {
+  const response = await fetch(`${API}${path}`);
+  if (!response.ok) {
+    throw new Error(`${response.status}: ${await response.text()}`);
+  }
+  return response.json();
+}
+
+async function postJSON(path, body) {
+  const response = await fetch(`${API}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`${response.status}: ${text}`);
+  }
+  return text ? JSON.parse(text) : {};
+}
+
+function extractErrorDetail(message) {
+  if (!message) return "unknown error";
+  const text = String(message);
+  const detail = text.match(/"detail":\s*"([^"]+)"/);
+  return detail ? detail[1] : text;
+}
+
+/* ------------------------------------------------------------
+   Reusable: status badge
+   ------------------------------------------------------------ */
+const BADGE_CLASS_MAP = {
+  success: "success",
+  active: "success",
+  ready: "success",
+  connected: "success",
+  online: "success",
+  deployed: "success",
+  warning: "warning",
+  disabled: "neutral",
+  inactive: "neutral",
+  unknown: "neutral",
+  failed: "error",
+  failure: "error",
+  error: "error",
+  blocked: "error",
+  offline: "error",
+  info: "info",
+};
+
+function statusBadge(status, label) {
+  const key = String(status || "").toLowerCase();
+  const cls = BADGE_CLASS_MAP[key] || "neutral";
+  return `<span class="status-badge ${cls}">${escapeHTML(label || status || "UNKNOWN")}</span>`;
+}
+
+/* ------------------------------------------------------------
+   Reusable: loading / empty / error state blocks
+   ------------------------------------------------------------ */
+function stateBlock(type, text) {
+  const icon =
+    type === "loading" ? '<div class="spinner"></div>' : "";
+  const cls =
+    type === "error" ? " state-error" : type === "empty" ? " state-empty" : "";
+  return `<div class="state${cls}">${icon}<div class="state-title">${escapeHTML(text)}</div></div>`;
+}
+
+/* ------------------------------------------------------------
+   Reusable: toast notifications
+   ------------------------------------------------------------ */
+function showToast(message, type = "info", ms = 3000) {
+  const container = $("#toast-container");
+  if (!container) return;
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span class="toast-dot"></span><span>${escapeHTML(message)}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.transition = "opacity .3s";
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 320);
+  }, ms);
+}
+
+/* ------------------------------------------------------------
+   Reusable: confirm dialog (promise-based)
+   ------------------------------------------------------------ */
+function confirmDialog({ title, text, confirmLabel = "Delete", danger = true }) {
+  return new Promise((resolve) => {
+    const root = $("#confirm-root");
+    if (!root) return resolve(true);
+    root.innerHTML = `
+      <div class="confirm-overlay">
+        <div class="confirm-dialog" role="dialog" aria-modal="true">
+          <div class="confirm-title">${escapeHTML(title)}</div>
+          <div class="confirm-text">${escapeHTML(text)}</div>
+          <div class="confirm-actions">
+            <button class="button secondary" data-confirm-cancel>Cancel</button>
+            <button class="button ${danger ? "danger" : "primary"}" data-confirm-ok>${escapeHTML(confirmLabel)}</button>
+          </div>
+        </div>
+      </div>`;
+    const close = (result) => {
+      root.innerHTML = "";
+      resolve(result);
+    };
+    root.querySelector("[data-confirm-cancel]").addEventListener("click", () => close(false));
+    root.querySelector("[data-confirm-ok]").addEventListener("click", () => close(true));
+  });
+}
+
+/* ------------------------------------------------------------
+   Reusable: recent activity feed
+   Consumes REAL events only. UI architecture ready for a future
+   activity backend without redesigning the page.
+   ------------------------------------------------------------ */
+function addActivity(event, status = "info") {
+  const list = $("#activity-list");
+  if (!list) return;
+  const empty = list.querySelector(".activity-empty");
+  if (empty) empty.remove();
+  const item = document.createElement("div");
+  item.className = "activity-item";
+  const time = new Date().toLocaleTimeString("en-GB", { hour12: false });
+  item.innerHTML = `
+    <span class="activity-time">${time}</span>
+    <span class="activity-event">${escapeHTML(event)}</span>
+    ${statusBadge(status)}
+  `;
+  list.prepend(item);
+  while (list.children.length > 20) list.lastChild.remove();
+}
+
+/* ------------------------------------------------------------
+   Appearance (DARK / LIGHT only)
+   ------------------------------------------------------------ */
+const THEME_KEY = "cloudpilot-theme";
+
+function applyTheme(theme) {
+  const value = theme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = value;
+  const label = $("#theme-toggle-label");
+  if (label) label.textContent = value === "dark" ? "Dark" : "Light";
+  document.querySelectorAll("[data-appearance]").forEach((el) => {
+    el.classList.toggle("selected", el.dataset.appearance === value);
+  });
+  try {
+    localStorage.setItem(THEME_KEY, value);
+  } catch {
+    /* storage unavailable — theme still applies for the session */
+  }
+}
+
+function initTheme() {
+  let saved = "dark";
+  try {
+    saved = localStorage.getItem(THEME_KEY) || "dark";
+  } catch {
+    /* ignore */
+  }
+  applyTheme(saved);
+}
+
+/* ------------------------------------------------------------
+   System clock + uptime (single interval)
+   ------------------------------------------------------------ */
+function updateSystemClock() {
+  const now = new Date();
+  $("#sys-date").textContent = now.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+  $("#sys-time").textContent = now.toLocaleTimeString("en-GB", {
+    hour12: false,
+  });
+  const uptime = $("#sys-uptime");
+  if (AppState.backend.startedAt) {
+    uptime.textContent = formatUptime(
+      Math.floor((Date.now() - AppState.backend.startedAt) / 1000)
+    );
+  } else {
+    uptime.textContent = "--:--:--";
+  }
+}
+
+/* ------------------------------------------------------------
+   Navigation
+   ------------------------------------------------------------ */
+function showView(name) {
+  document.querySelectorAll(".view").forEach((view) => {
+    view.classList.toggle("active", view.id === `view-${name}`);
+  });
+  document.querySelectorAll(".nav-item").forEach((item) => {
+    item.classList.toggle("active", item.dataset.view === name);
+  });
+  const cfg = VIEW_CONFIG[name] || VIEW_CONFIG.dashboard;
+  $("#page-title").textContent = cfg.title;
+  $("#page-eyebrow").textContent = cfg.eyebrow;
+}
+
+/* ------------------------------------------------------------
+   Backend status — ONE source of truth for backend state.
+   ------------------------------------------------------------ */
+async function checkBackend() {
+  const statusEl = $("#backend-status");
+  const dot = $("#backend-dot");
+  const stat = $("#stat-backend");
+
+  try {
+    const health = await getJSON("/api/health");
+    AppState.backend.status = "online";
+    let started = Date.parse(health.started_at);
+    if (Number.isNaN(started)) {
+      started = Date.now() - (health.uptime_seconds || 0) * 1000;
+    }
+    AppState.backend.startedAt = started;
+
+    statusEl.textContent = "Online";
+    statusEl.className = "online";
+    dot.className = "status-dot online";
+    stat.textContent = "Online";
+    stat.classList.remove("muted");
+
+    if (!AppState.backend.wasOnline) {
+      AppState.backend.wasOnline = true;
+      addActivity("Backend online · 127.0.0.1:8765", "success");
+    }
+    return health;
+  } catch (error) {
+    console.error("Backend unavailable:", error);
+    AppState.backend.status = "offline";
+    AppState.backend.startedAt = null;
+
+    statusEl.textContent = "Offline";
+    statusEl.className = "offline";
+    dot.className = "status-dot offline";
+    stat.textContent = "Offline";
+    stat.classList.add("muted");
+    return null;
+  }
+}
+
+/* ------------------------------------------------------------
+   Cloudflare status — ONE source of truth.
+   All components (global banner, metric card) consume it.
+   ------------------------------------------------------------ */
+function setCloudflareState(status, message) {
+  AppState.cloudflare.status = status;
+
+  const card = $("#cf-global-status");
+  const badge = $("#cf-status-badge");
+  const title = $("#cf-status-title");
+  const text = $("#cf-status-text");
+  const icon = card.querySelector(".status-icon");
+  const stat = $("#stat-connection");
+  const action = $("#cf-global-action");
+
+  card.classList.remove("connected", "connecting", "error");
+  badge.className = "status-badge";
+
+  switch (status) {
+    case "connected":
+      card.classList.add("connected");
+      badge.classList.add("success");
+      badge.textContent = "CONNECTED";
+      title.textContent = "Cloudflare";
+      text.textContent = "Live account data available.";
+      icon.textContent = "✓";
+      stat.textContent = "Connected";
+      stat.classList.remove("muted");
+      action.style.display = "none";
+      break;
+
+    case "not-connected":
+      card.classList.add("connecting");
+      badge.classList.add("warning");
+      badge.textContent = "NOT CONNECTED";
+      title.textContent = "Cloudflare is not connected";
+      text.textContent =
+        "Configure credentials to activate live account data.";
+      icon.textContent = "!";
+      stat.textContent = "Not Connected";
+      stat.classList.add("muted");
+      action.style.display = "";
+      break;
+
+    case "error":
+      card.classList.add("error");
+      badge.classList.add("error");
+      badge.textContent = "ERROR";
+      title.textContent = "Cloudflare connection failed";
+      text.textContent = message || "Unable to reach the Cloudflare API.";
+      icon.textContent = "!";
+      stat.textContent = "Error";
+      stat.classList.add("muted");
+      action.style.display = "";
+      break;
+
+    default:
+      card.classList.add("connecting");
+      badge.classList.add("warning");
+      badge.textContent = "CONNECTING";
+      title.textContent = "Checking Cloudflare connection...";
+      text.textContent = "Verifying credentials against the Cloudflare API.";
+      icon.textContent = "…";
+      stat.textContent = "Checking…";
+      stat.classList.add("muted");
+      action.style.display = "";
+  }
+}
+
+function setDataMode(mode) {
+  AppState.mode = mode;
+  $("#data-mode").textContent = mode;
+}
+
+/* ------------------------------------------------------------
+   Workers renderers
+   ------------------------------------------------------------ */
+function renderDashboardWorkers(workers) {
+  const container = $("#dashboard-workers");
+  if (workers === null) {
+    container.innerHTML = stateBlock("loading", "Loading workers...");
+    return;
+  }
+  if (!workers.length) {
+    container.innerHTML = stateBlock("empty", "No workers found.");
+    return;
+  }
+  container.innerHTML = workers.map((worker) => `
+    <div class="worker-card">
+      <div class="worker-name" title="${escapeHTML(worker.name)}">
+        ${escapeHTML(worker.name)}
+      </div>
+      <div class="worker-meta">
+        <span class="updated">Updated ${formatDate(worker.modified_on)}</span>
+        ${statusBadge(worker.workers_dev_enabled ? "ACTIVE" : "DISABLED")}
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderWorkersTable(workers) {
+  const container = $("#workers-list");
+  if (workers === null) {
+    container.innerHTML = stateBlock("loading", "Loading workers...");
+    return;
+  }
+  if (!workers.length) {
+    container.innerHTML = stateBlock("empty", "No workers found.");
+    return;
+  }
+  container.innerHTML = `
+    <div class="table-row table-head">
+      <div>Name</div>
+      <div>Compatibility</div>
+      <div>Workers.dev</div>
+      <div>Status</div>
+    </div>
+    ${workers.map((worker) => `
+      <div class="table-row">
+        <div title="${escapeHTML(worker.name)}">${escapeHTML(worker.name)}</div>
+        <div>${worker.compatibility_date || "—"}</div>
+        <div>${worker.workers_dev_enabled ? "Enabled" : "Disabled"}</div>
+        <div>${statusBadge(worker.workers_dev_enabled ? "ACTIVE" : "DISABLED")}</div>
+      </div>
+    `).join("")}
+  `;
+}
+
+/* ------------------------------------------------------------
+   Deployments renderers
+   ------------------------------------------------------------ */
+function renderDeploymentsTable(deployments) {
+  const container = $("#deployments-list");
+  if (deployments === null) {
+    container.innerHTML = stateBlock("loading", "Loading deployments...");
+    return;
+  }
+  if (!deployments.length) {
+    container.innerHTML = stateBlock("empty", "No deployments found.");
+    return;
+  }
+  container.innerHTML = `
+    <div class="table-row table-head">
+      <div>Worker</div>
+      <div>Version</div>
+      <div>Status</div>
+      <div>Created</div>
+    </div>
+    ${deployments.map((deployment) => `
+      <div class="table-row">
+        <div title="${escapeHTML(deployment.worker_name)}">${escapeHTML(deployment.worker_name)}</div>
+        <div>${escapeHTML(deployment.version_id || "—")}</div>
+        <div>${statusBadge(deployment.status || "UNKNOWN")}</div>
+        <div>${formatDate(deployment.created_on)}</div>
+      </div>
+    `).join("")}
+  `;
+}
+
+/* ------------------------------------------------------------
+   Contract fallback mode
+   ------------------------------------------------------------ */
+function renderContractMode() {
+  setDataMode("CONTRACT MODE");
+  AppState.workers = CONTRACT_WORKERS;
+  AppState.deployments = CONTRACT_DEPLOYMENTS;
+
+  $("#stat-workers").textContent = AppState.workers.length;
+  $("#stat-deployments").textContent = AppState.deployments.length;
+
+  renderDashboardWorkers(AppState.workers);
+  renderWorkersTable(AppState.workers);
+  renderDeploymentsTable(AppState.deployments);
+}
+
+/* ------------------------------------------------------------
+   Cloudflare module loader
+   ------------------------------------------------------------ */
+async function loadCloudflare() {
+  setCloudflareState("checking");
+
+  try {
+    const config = await getJSON("/api/v1/cloudflare/config");
+
+    $("#config-account").textContent = config.account_id_configured
+      ? "Configured"
+      : "Not configured";
+    $("#config-token").textContent = config.api_token_configured
+      ? "Configured"
+      : "Not configured";
+    $("#config-proxy").textContent = config.proxy_configured
+      ? "Configured"
+      : "Not configured";
+
+    if (!config.configured) {
+      setCloudflareState("not-connected");
+      renderContractMode();
+      return;
+    }
+
+    const [status, workers] = await Promise.all([
+      getJSON("/api/v1/cloudflare/status"),
+      getJSON("/api/v1/cloudflare/workers"),
+    ]);
+
+    setCloudflareState(
+      status.authenticated ? "connected" : "not-connected"
+    );
+
+    AppState.workers = workers.workers || [];
+    setDataMode("LIVE API");
+
+    renderDashboardWorkers(AppState.workers);
+    renderWorkersTable(AppState.workers);
+    $("#stat-workers").textContent = AppState.workers.length;
+
+    let deployments = [];
+    for (const worker of AppState.workers) {
+      try {
+        const data = await getJSON(
+          `/api/v1/cloudflare/workers/${encodeURIComponent(worker.name)}/deployments`
+        );
+        deployments.push(
+          ...(data.deployments || []).map((item) => ({
+            ...item,
+            worker_name: worker.name,
+          }))
+        );
+      } catch {
+        // Keep the UI usable if one worker deployment endpoint fails.
+      }
+    }
+
+    AppState.deployments = deployments;
+    $("#stat-deployments").textContent = AppState.deployments.length;
+    renderDeploymentsTable(AppState.deployments);
+
+    addActivity(
+      `Loaded ${AppState.workers.length} workers from Cloudflare`,
+      "success"
+    );
+  } catch (error) {
+    console.warn("Cloudflare API unavailable:", error);
+    setCloudflareState("error", extractErrorDetail(error.message));
+    setDataMode("ERROR");
+    AppState.workers = null;
+    AppState.deployments = null;
+    renderDashboardWorkers(null);
+    renderWorkersTable(null);
+    renderDeploymentsTable(null);
+    addActivity("Cloudflare API unavailable", "error");
+  }
+}
+
+/* ------------------------------------------------------------
+   Config Builder module
+   ------------------------------------------------------------ */
 function renderConfigDeployments(records) {
   const container = $("#config-deployments-list");
 
@@ -459,17 +798,18 @@ function renderConfigResults(record) {
     `
   ).join("");
 
-  bindCopyButtons();
+  bindCopyButtonsIn($("#config-results"));
 }
 
-function bindCopyButtons() {
-  $("#config-results").querySelectorAll("[data-copy]").forEach((btn) => {
+function bindCopyButtonsIn(scope) {
+  scope.querySelectorAll("[data-copy]").forEach((btn) => {
     btn.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(btn.dataset.copy);
+        const label = btn.textContent;
         btn.textContent = "Copied";
         setTimeout(() => {
-          btn.textContent = "Copy";
+          btn.textContent = label;
         }, 1500);
       } catch (error) {
         console.warn("Clipboard unavailable:", error);
@@ -482,14 +822,10 @@ async function loadConfig() {
   $("#config-need-creds").hidden = true;
 
   try {
-    const payload = await getJSON(
-      "/api/v1/cloudflare/bpb/deployments"
-    );
-
+    const payload = await getJSON("/api/v1/cloudflare/bpb/deployments");
     renderConfigDeployments(payload.deployments || []);
   } catch (error) {
     console.warn("Config deployments unavailable:", error);
-
     $("#config-deployments-list").innerHTML = `
       <div class="info-box">
         <strong>Config API unavailable.</strong>
@@ -516,39 +852,35 @@ async function deployConfig() {
 
     const apiToken = $("#config-api-token").value.trim();
 
-    const payload = await postJSON(
-      "/api/v1/cloudflare/bpb/deploy",
-      {
-        worker_name:
-          $("#config-worker-name").value.trim() || "cyber-panel",
-        api_token: apiToken,
-        proxy_ip_mode: $("#config-proxy-mode").value,
-        proxy_ips: proxyIPs,
-        doh_url: $("#config-doh").value.trim(),
-      }
-    );
+    const payload = await postJSON("/api/v1/cloudflare/bpb/deploy", {
+      worker_name: $("#config-worker-name").value.trim() || "cyber-panel",
+      api_token: apiToken,
+      proxy_ip_mode: $("#config-proxy-mode").value,
+      proxy_ips: proxyIPs,
+      doh_url: $("#config-doh").value.trim(),
+    });
 
     status.textContent = "Installed successfully.";
+    addActivity(`Panel "${payload.deployment.worker_name}" deployed`, "success");
+    showToast("Panel installed successfully", "success");
 
     renderConfigResults(payload.deployment);
     await loadConfig();
   } catch (error) {
     console.error("Config deploy failed:", error);
-
-    const detail = (error.message || "").split(
-      "detail"
-    ).pop();
-
-    errorBox.textContent =
-      "Install failed. " + detail.replace(/[{}":]/g, " ");
+    const detail = (error.message || "").split("detail").pop();
+    errorBox.textContent = "Install failed. " + detail.replace(/[{}":]/g, " ");
     errorBox.hidden = false;
-
     status.textContent = "Install failed.";
+    addActivity("Panel deployment failed", "error");
   } finally {
     button.disabled = false;
   }
 }
 
+/* ------------------------------------------------------------
+   Settings — Cloudflare credentials
+   ------------------------------------------------------------ */
 async function saveProxy() {
   const button = $("#cred-proxy-btn");
   const status = $("#cred-proxy-status");
@@ -562,14 +894,13 @@ async function saveProxy() {
     });
 
     $("#cred-proxy").value = "";
-
     status.textContent = "Proxy saved.";
+    addActivity("Cloudflare proxy updated", "info");
 
     await loadCloudflare();
   } catch (error) {
     console.error("Proxy save failed:", error);
-    status.textContent =
-      "Save failed: " + extractErrorDetail(error.message);
+    status.textContent = "Save failed: " + extractErrorDetail(error.message);
   } finally {
     button.disabled = false;
   }
@@ -592,27 +923,23 @@ async function saveCredentials() {
     $("#cred-token").value = "";
 
     status.textContent = "Saved. Credentials are now active.";
+    addActivity("Cloudflare credentials configured", "success");
+    showToast("Cloudflare credentials saved", "success");
 
     await loadCloudflare();
   } catch (error) {
     console.error("Credential save failed:", error);
-    status.textContent =
-      "Save failed: " + extractErrorDetail(error.message);
+    status.textContent = "Save failed: " + extractErrorDetail(error.message);
   } finally {
     button.disabled = false;
   }
 }
 
-function extractErrorDetail(message) {
-  if (!message) return "unknown error";
-  const text = String(message);
-  const detail = text.match(/"detail":\s*"([^"]+)"/);
-  return detail ? detail[1] : text;
-}
-
+/* ------------------------------------------------------------
+   Network Checker module
+   ------------------------------------------------------------ */
 function renderNetworkResults(payload) {
   const container = $("#net-results");
-
   container.hidden = false;
 
   const results = payload.results || [];
@@ -652,19 +979,7 @@ function renderNetworkResults(payload) {
     </div>
   `;
 
-  container.querySelectorAll("[data-copy]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(btn.dataset.copy);
-        btn.textContent = "Copied";
-        setTimeout(() => {
-          btn.textContent = "Copy";
-        }, 1500);
-      } catch (error) {
-        console.warn("Clipboard unavailable:", error);
-      }
-    });
-  });
+  bindCopyButtonsIn(container);
 }
 
 async function runNetworkScan() {
@@ -693,43 +1008,22 @@ async function runNetworkScan() {
       concurrency: Number($("#net-concurrency").value),
     });
 
-    status.textContent =
-      `Done. ${payload.reachable} clean IPs found.`;
-
+    status.textContent = `Done. ${payload.reachable} clean IPs found.`;
     renderNetworkResults(payload);
+    addActivity(`Clean-IP scan found ${payload.reachable} IPs`, "success");
   } catch (error) {
     console.error("Network scan failed:", error);
-
-    errorBox.textContent =
-      "Scan failed: " + extractErrorDetail(error.message);
+    errorBox.textContent = "Scan failed: " + extractErrorDetail(error.message);
     errorBox.hidden = false;
-
     status.textContent = "Scan failed.";
+    addActivity("Clean-IP scan failed", "error");
   } finally {
     button.disabled = false;
   }
 }
 
-function bindCopyButtonsIn(scope) {
-  scope.querySelectorAll("[data-copy]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(btn.dataset.copy);
-        const label = btn.textContent;
-        btn.textContent = "Copied";
-        setTimeout(() => {
-          btn.textContent = label;
-        }, 1500);
-      } catch (error) {
-        console.warn("Clipboard unavailable:", error);
-      }
-    });
-  });
-}
-
 function renderDomainResults(payload) {
   const container = $("#net-domains-results");
-
   container.hidden = false;
 
   const results = payload.results || [];
@@ -748,9 +1042,7 @@ function renderDomainResults(payload) {
           <span class="latency">
             ${item.reachable ? `${item.latency_ms} ms` : "—"}
           </span>
-          <span class="badge ${item.reachable ? "" : "blocked"}">
-            ${item.reachable ? "REACHABLE" : "BLOCKED"}
-          </span>
+          ${statusBadge(item.reachable ? "REACHABLE" : "BLOCKED")}
         </div>
       `).join("")}
     </div>
@@ -774,21 +1066,17 @@ async function runDomainCheck() {
     .filter(Boolean);
 
   try {
-    const payload = await postJSON("/api/v1/network/domain-check", {
-      domains,
-    });
+    const payload = await postJSON("/api/v1/network/domain-check", { domains });
 
     status.textContent =
       `Done. ${payload.reachable} reachable, ${payload.blocked} blocked.`;
-
     renderDomainResults(payload);
+    addActivity("Domain check completed", "info");
   } catch (error) {
     console.error("Domain check failed:", error);
-
     errorBox.textContent =
       "Domain check failed: " + extractErrorDetail(error.message);
     errorBox.hidden = false;
-
     status.textContent = "Failed.";
   } finally {
     button.disabled = false;
@@ -797,7 +1085,6 @@ async function runDomainCheck() {
 
 function renderDnsResults(payload) {
   const container = $("#net-dns-results");
-
   container.hidden = false;
 
   const results = payload.results || [];
@@ -816,9 +1103,7 @@ function renderDnsResults(payload) {
           <span class="latency">
             ${item.reachable ? `${item.latency_ms} ms` : "—"}
           </span>
-          <span class="badge ${item.reachable ? "" : "blocked"}">
-            ${item.reachable ? "OK" : "NO ANSWER"}
-          </span>
+          ${statusBadge(item.reachable ? "OK" : "NO ANSWER")}
         </div>
       `).join("")}
     </div>
@@ -838,17 +1123,12 @@ async function runDnsTest() {
 
   try {
     const payload = await postJSON("/api/v1/network/dns-test", {});
-
     status.textContent = "Done.";
-
     renderDnsResults(payload);
   } catch (error) {
     console.error("DNS test failed:", error);
-
-    errorBox.textContent =
-      "DNS test failed: " + extractErrorDetail(error.message);
+    errorBox.textContent = "DNS test failed: " + extractErrorDetail(error.message);
     errorBox.hidden = false;
-
     status.textContent = "Failed.";
   } finally {
     button.disabled = false;
@@ -857,7 +1137,6 @@ async function runDnsTest() {
 
 function renderVlessResults(payload) {
   const container = $("#net-vless-results");
-
   container.hidden = false;
 
   const outputs = payload.outputs || [];
@@ -873,7 +1152,7 @@ function renderVlessResults(payload) {
         <div class="vless-result">
           <div class="vless-result-head">
             <span class="name">${escapeHTML(item.input)}</span>
-            <span class="badge">${item.valid ? item.count + " configs" : "INVALID"}</span>
+            ${statusBadge(item.valid ? item.count + " configs" : "INVALID")}
           </div>
           ${item.valid ? `
             <div class="vless-lines">
@@ -920,17 +1199,12 @@ async function runVlessModify() {
       ips,
     });
 
-    status.textContent =
-      `Done. ${payload.count} configs generated.`;
-
+    status.textContent = `Done. ${payload.count} configs generated.`;
     renderVlessResults(payload);
   } catch (error) {
     console.error("Vless modify failed:", error);
-
-    errorBox.textContent =
-      "Generation failed: " + extractErrorDetail(error.message);
+    errorBox.textContent = "Generation failed: " + extractErrorDetail(error.message);
     errorBox.hidden = false;
-
     status.textContent = "Failed.";
   } finally {
     button.disabled = false;
@@ -939,7 +1213,6 @@ async function runVlessModify() {
 
 function renderSniResults(payload) {
   const container = $("#net-sni-results");
-
   container.hidden = false;
 
   container.innerHTML = `
@@ -954,18 +1227,14 @@ function renderSniResults(payload) {
         <span class="latency">
           ${payload.real_sni != null ? payload.real_sni + " ms" : "—"}
         </span>
-        <span class="badge ${payload.real_sni != null ? "" : "blocked"}">
-          ${payload.real_sni != null ? "OK" : "BLOCKED"}
-        </span>
+        ${statusBadge(payload.real_sni != null ? "OK" : "BLOCKED")}
       </div>
       <div class="domain-row">
         <span class="name">Spoofed SNI (${escapeHTML(payload.decoy)})</span>
         <span class="latency">
           ${payload.spoofed_sni != null ? payload.spoofed_sni + " ms" : "—"}
         </span>
-        <span class="badge ${payload.spoof_supported ? "" : "blocked"}">
-          ${payload.spoof_supported ? "SPOOF WORKS" : "NOT SPOOFABLE"}
-        </span>
+        ${statusBadge(payload.spoof_supported ? "SPOOF WORKS" : "NOT SPOOFABLE")}
       </div>
     </div>
   `;
@@ -988,19 +1257,15 @@ async function runSniCheck() {
       decoy: $("#net-sni-decoy").value.trim(),
     });
 
-    status.textContent =
-      payload.spoof_supported
-        ? "SNI spoofing is supported on your connection."
-        : "SNI spoofing is not possible.";
+    status.textContent = payload.spoof_supported
+      ? "SNI spoofing is supported on your connection."
+      : "SNI spoofing is not possible.";
 
     renderSniResults(payload);
   } catch (error) {
     console.error("SNI check failed:", error);
-
-    errorBox.textContent =
-      "SNI check failed: " + extractErrorDetail(error.message);
+    errorBox.textContent = "SNI check failed: " + extractErrorDetail(error.message);
     errorBox.hidden = false;
-
     status.textContent = "Failed.";
   } finally {
     button.disabled = false;
@@ -1009,7 +1274,6 @@ async function runSniCheck() {
 
 function renderDnsHuntResults(payload) {
   const container = $("#net-dns-hunt-results");
-
   container.hidden = false;
 
   const results = payload.results || [];
@@ -1028,9 +1292,7 @@ function renderDnsHuntResults(payload) {
           <span class="resolved">
             ${item.reachable ? escapeHTML(item.resolved.join(", ")) : "—"}
           </span>
-          <span class="badge ${item.reachable ? "" : "blocked"}">
-            ${item.reachable ? `${item.latency_ms} ms` : "NO ANSWER"}
-          </span>
+          ${statusBadge(item.reachable ? `${item.latency_ms} ms` : "NO ANSWER")}
         </div>
       `).join("")}
     </div>
@@ -1050,19 +1312,17 @@ async function runDnsHunt() {
 
   try {
     const payload = await postJSON("/api/v1/network/dns-hunt", {
-      domains: $("#net-dns-hunt-domain").value.trim() ? [$("#net-dns-hunt-domain").value.trim()] : [],
+      domains: $("#net-dns-hunt-domain").value.trim()
+        ? [$("#net-dns-hunt-domain").value.trim()]
+        : [],
     });
 
     status.textContent = "Done.";
-
     renderDnsHuntResults(payload);
   } catch (error) {
     console.error("DNS hunt failed:", error);
-
-    errorBox.textContent =
-      "DNS hunt failed: " + extractErrorDetail(error.message);
+    errorBox.textContent = "DNS hunt failed: " + extractErrorDetail(error.message);
     errorBox.hidden = false;
-
     status.textContent = "Failed.";
   } finally {
     button.disabled = false;
@@ -1071,7 +1331,6 @@ async function runDnsHunt() {
 
 function renderXrayResults(payload) {
   const container = $("#net-xray-results");
-
   container.hidden = false;
 
   const results = payload.results || [];
@@ -1117,17 +1376,12 @@ async function runXrayScan() {
       sample_size: Number($("#net-xray-sample").value),
     });
 
-    status.textContent =
-      `Done. ${payload.reachable} reachable IPs.`;
-
+    status.textContent = `Done. ${payload.reachable} reachable IPs.`;
     renderXrayResults(payload);
   } catch (error) {
     console.error("Xray scan failed:", error);
-
-    errorBox.textContent =
-      "Xray scan failed: " + extractErrorDetail(error.message);
+    errorBox.textContent = "Xray scan failed: " + extractErrorDetail(error.message);
     errorBox.hidden = false;
-
     status.textContent = "Failed.";
   } finally {
     button.disabled = false;
@@ -1136,7 +1390,6 @@ async function runXrayScan() {
 
 function renderAkamaiResults(payload) {
   const container = $("#net-akamai-results");
-
   container.hidden = false;
 
   const results = payload.results || [];
@@ -1179,17 +1432,12 @@ async function runAkamaiScan() {
       sample_size: Number($("#net-akamai-sample").value),
     });
 
-    status.textContent =
-      `Done. ${payload.reachable} reachable IPs.`;
-
+    status.textContent = `Done. ${payload.reachable} reachable IPs.`;
     renderAkamaiResults(payload);
   } catch (error) {
     console.error("Akamai scan failed:", error);
-
-    errorBox.textContent =
-      "Akamai scan failed: " + extractErrorDetail(error.message);
+    errorBox.textContent = "Akamai scan failed: " + extractErrorDetail(error.message);
     errorBox.hidden = false;
-
     status.textContent = "Failed.";
   } finally {
     button.disabled = false;
@@ -1198,7 +1446,6 @@ async function runAkamaiScan() {
 
 function renderNetlifyResults(payload) {
   const container = $("#net-netlify-results");
-
   container.hidden = false;
 
   const configs = payload.configs || [];
@@ -1242,22 +1489,14 @@ async function runNetlify() {
     .split("\n").map((item) => item.trim()).filter(Boolean);
 
   try {
-    const payload = await postJSON("/api/v1/network/netlify", {
-      snis,
-      ips,
-    });
+    const payload = await postJSON("/api/v1/network/netlify", { snis, ips });
 
-    status.textContent =
-      `Done. ${payload.count} configs generated.`;
-
+    status.textContent = `Done. ${payload.count} configs generated.`;
     renderNetlifyResults(payload);
   } catch (error) {
     console.error("Netlify generation failed:", error);
-
-    errorBox.textContent =
-      "Netlify generation failed: " + extractErrorDetail(error.message);
+    errorBox.textContent = "Netlify generation failed: " + extractErrorDetail(error.message);
     errorBox.hidden = false;
-
     status.textContent = "Failed.";
   } finally {
     button.disabled = false;
@@ -1266,7 +1505,6 @@ async function runNetlify() {
 
 function renderDiagResults(payload) {
   const container = $("#net-diag-results");
-
   container.hidden = false;
 
   const sites = payload.sites || [];
@@ -1288,9 +1526,7 @@ function renderDiagResults(payload) {
             <span class="latency">
               ${item.reachable ? `${item.latency_ms} ms` : "—"}
             </span>
-            <span class="badge ${item.reachable ? "" : "blocked"}">
-              ${item.reachable ? "OK" : "NO ANSWER"}
-            </span>
+            ${statusBadge(item.reachable ? "OK" : "NO ANSWER")}
           </div>
         `).join("")}
       </div>
@@ -1329,26 +1565,24 @@ async function runDiag() {
     .split(/[\n,]/).map((item) => item.trim()).filter(Boolean);
 
   try {
-    const payload = await postJSON("/api/v1/network/diagnostics", {
-      targets,
-    });
+    const payload = await postJSON("/api/v1/network/diagnostics", { targets });
 
     status.textContent = "Done.";
-
     renderDiagResults(payload);
+    addActivity("Network diagnostics completed", "info");
   } catch (error) {
     console.error("Diagnostics failed:", error);
-
-    errorBox.textContent =
-      "Diagnostics failed: " + extractErrorDetail(error.message);
+    errorBox.textContent = "Diagnostics failed: " + extractErrorDetail(error.message);
     errorBox.hidden = false;
-
     status.textContent = "Failed.";
   } finally {
     button.disabled = false;
   }
 }
 
+/* ------------------------------------------------------------
+   Railway Relay module
+   ------------------------------------------------------------ */
 function renderRailwayDeployments(deployments) {
   const container = $("#rw-deployments-list");
 
@@ -1399,7 +1633,7 @@ function renderRailwayDeployments(deployments) {
           `).join("") : ""}
         </div>
         <div class="bpb-deployment-actions">
-          <span class="badge rw-status">${escapeHTML(record.status || "unknown")}</span>
+          ${statusBadge(record.status || "unknown")}
           <button class="button secondary"
                   data-rw-debug="${escapeHTML(record.relay_name)}">Debug</button>
           <button class="button secondary"
@@ -1412,21 +1646,15 @@ function renderRailwayDeployments(deployments) {
   }).join("");
 
   container.querySelectorAll("[data-rw-debug]").forEach((el) => {
-    el.addEventListener("click", () => {
-      runRailwayDebug(el.dataset.rwDebug);
-    });
+    el.addEventListener("click", () => runRailwayDebug(el.dataset.rwDebug));
   });
 
   container.querySelectorAll("[data-rw-redeploy]").forEach((el) => {
-    el.addEventListener("click", () => {
-      redeployRailway(el.dataset.rwRedeploy);
-    });
+    el.addEventListener("click", () => redeployRailway(el.dataset.rwRedeploy));
   });
 
   container.querySelectorAll("[data-rw-delete]").forEach((el) => {
-    el.addEventListener("click", () => {
-      deleteRailway(el.dataset.rwDelete);
-    });
+    el.addEventListener("click", () => deleteRailway(el.dataset.rwDelete));
   });
 }
 
@@ -1440,8 +1668,9 @@ async function loadRailway() {
       getJSON("/api/v1/railway/deployments"),
     ]);
 
-    $("#rw-config-token").textContent =
-      config.api_token_configured ? "Configured" : "Not configured";
+    $("#rw-config-token").textContent = config.api_token_configured
+      ? "Configured"
+      : "Not configured";
 
     renderRailwayDeployments(deployments.deployments || []);
 
@@ -1459,7 +1688,6 @@ async function loadRailway() {
     }
   } catch (error) {
     console.warn("Railway API unavailable:", error);
-
     $("#rw-config-token").textContent = "Error";
     $("#rw-deploy-error").textContent =
       "Railway API unavailable: " + extractErrorDetail(error.message);
@@ -1479,14 +1707,13 @@ async function saveRailwayToken() {
     await postJSON("/api/v1/railway/config", { api_token: token });
 
     $("#rw-token").value = "";
-
     status.textContent = "Token saved.";
+    addActivity("Railway token configured", "info");
 
     await loadRailway();
   } catch (error) {
     console.error("Railway token save failed:", error);
-    status.textContent =
-      "Save failed: " + extractErrorDetail(error.message);
+    status.textContent = "Save failed: " + extractErrorDetail(error.message);
   } finally {
     button.disabled = false;
   }
@@ -1503,8 +1730,7 @@ async function deployRailway() {
 
   try {
     const payload = await postJSON("/api/v1/railway/deploy", {
-      relay_name:
-        $("#rw-name").value.trim() || "avaco-relay",
+      relay_name: $("#rw-name").value.trim() || "avaco-relay",
       api_token: $("#rw-token").value.trim(),
       target_domain: $("#rw-target").value.trim(),
       public_relay_path: $("#rw-public-path").value.trim(),
@@ -1516,19 +1742,15 @@ async function deployRailway() {
     });
 
     status.textContent = "Deployed successfully.";
-
     const record = payload.deployment || {};
-    const host = record.host || "";
-
-    if (host) {
-      errorBox.hidden = true;
-    }
+    if (record.host) errorBox.hidden = true;
+    addActivity(`Railway relay "${record.relay_name}" deployed`, "success");
+    showToast("Railway relay deployed", "success");
 
     await loadRailway();
   } catch (error) {
     console.error("Railway deploy failed:", error);
-    errorBox.textContent =
-      "Deploy failed: " + extractErrorDetail(error.message);
+    errorBox.textContent = "Deploy failed: " + extractErrorDetail(error.message);
     errorBox.hidden = false;
     status.textContent = "Deploy failed.";
   } finally {
@@ -1548,11 +1770,9 @@ async function runRailwayDebug(relayName) {
       `/api/v1/railway/deployments/${encodeURIComponent(relayName)}/debug`,
       {}
     );
-
     content.textContent = JSON.stringify(payload.debug, null, 2);
   } catch (error) {
-    content.textContent =
-      "Debug failed: " + extractErrorDetail(error.message);
+    content.textContent = "Debug failed: " + extractErrorDetail(error.message);
   }
 }
 
@@ -1566,23 +1786,25 @@ async function redeployRailway(relayName) {
       `/api/v1/railway/deployments/${encodeURIComponent(relayName)}/redeploy`,
       {}
     );
-
     status.textContent = "Redeploy triggered.";
+    addActivity(`Redeploy triggered for "${relayName}"`, "info");
     await loadRailway();
   } catch (error) {
     console.error("Railway redeploy failed:", error);
-    status.textContent =
-      "Redeploy failed: " + extractErrorDetail(error.message);
+    status.textContent = "Redeploy failed: " + extractErrorDetail(error.message);
   }
 }
 
 async function deleteRailway(relayName) {
-  if (!window.confirm(`Delete relay "${relayName}" from Railway?`)) {
-    return;
-  }
+  const confirmed = await confirmDialog({
+    title: "Delete relay?",
+    text: `Delete relay "${relayName}" from Railway? This cannot be undone.`,
+    confirmLabel: "Delete",
+    danger: true,
+  });
+  if (!confirmed) return;
 
   const status = $("#rw-deploy-status");
-
   status.textContent = "Deleting...";
 
   try {
@@ -1596,23 +1818,24 @@ async function deleteRailway(relayName) {
     }
 
     status.textContent = "Deleted.";
+    addActivity(`Railway relay "${relayName}" deleted`, "info");
     await loadRailway();
   } catch (error) {
     console.error("Railway delete failed:", error);
-    status.textContent =
-      "Delete failed: " + extractErrorDetail(error.message);
+    status.textContent = "Delete failed: " + extractErrorDetail(error.message);
   }
 }
 
+/* ------------------------------------------------------------
+   Network tabs
+   ------------------------------------------------------------ */
 function bindNetTabs() {
   document.querySelectorAll("[data-net-tab]").forEach((tab) => {
     tab.addEventListener("click", () => {
       const name = tab.dataset.netTab;
-
       document.querySelectorAll("[data-net-tab]").forEach((t) => {
         t.classList.toggle("active", t === tab);
       });
-
       document.querySelectorAll("[data-net-panel]").forEach((panel) => {
         panel.classList.toggle("active", panel.dataset.netPanel === name);
       });
@@ -1620,31 +1843,60 @@ function bindNetTabs() {
   });
 }
 
+/* ------------------------------------------------------------
+   Event wiring
+   ------------------------------------------------------------ */
 function bindNavigation() {
   document.querySelectorAll("[data-view]").forEach((item) => {
-    item.addEventListener("click", () => {
-      showView(item.dataset.view);
-    });
+    item.addEventListener("click", () => showView(item.dataset.view));
   });
 
   document.querySelectorAll("[data-view-target]").forEach((item) => {
-    item.addEventListener("click", () => {
-      showView(item.dataset.viewTarget);
-    });
+    item.addEventListener("click", () => showView(item.dataset.viewTarget));
   });
 
   $("#refresh-btn").addEventListener("click", async () => {
     await checkBackend();
     await loadCloudflare();
+    await loadConfig();
+    await loadRailway();
   });
 
+  $("#theme-toggle").addEventListener("click", () => {
+    const current = document.documentElement.dataset.theme === "dark"
+      ? "dark"
+      : "light";
+    applyTheme(current === "dark" ? "light" : "dark");
+  });
+
+  document.querySelectorAll("[data-appearance]").forEach((el) => {
+    el.addEventListener("click", () => applyTheme(el.dataset.appearance));
+  });
+
+  /* Workers search + refresh */
+  $("#workers-search").addEventListener("input", (event) => {
+    const q = (event.target.value || "").toLowerCase().trim();
+    const all = AppState.workers || [];
+    const filtered = q
+      ? all.filter((w) => (w.name || "").toLowerCase().includes(q))
+      : all;
+    renderWorkersTable(filtered);
+  });
+  $("#workers-refresh").addEventListener("click", loadCloudflare);
+  $("#deployments-refresh").addEventListener("click", loadCloudflare);
+
+  /* Config Builder */
   $("#config-deploy-btn").addEventListener("click", deployConfig);
   $("#config-refresh").addEventListener("click", loadConfig);
-  $("#cred-save-btn").addEventListener("click", saveCredentials);
-  $("#cred-proxy-btn").addEventListener("click", saveProxy);
   $("#config-logs-close").addEventListener("click", () => {
     $("#config-logs").hidden = true;
   });
+
+  /* Settings */
+  $("#cred-save-btn").addEventListener("click", saveCredentials);
+  $("#cred-proxy-btn").addEventListener("click", saveProxy);
+
+  /* Network Checker */
   $("#net-scan-btn").addEventListener("click", runNetworkScan);
   $("#net-domains-btn").addEventListener("click", runDomainCheck);
   $("#net-dns-btn").addEventListener("click", runDnsTest);
@@ -1656,6 +1908,7 @@ function bindNavigation() {
   $("#net-netlify-btn").addEventListener("click", runNetlify);
   $("#net-diag-btn").addEventListener("click", runDiag);
 
+  /* Railway */
   $("#rw-save-token-btn").addEventListener("click", saveRailwayToken);
   $("#rw-deploy-btn").addEventListener("click", deployRailway);
   $("#rw-refresh").addEventListener("click", loadRailway);
@@ -1666,13 +1919,22 @@ function bindNavigation() {
   bindNetTabs();
 }
 
+/* ------------------------------------------------------------
+   Bootstrap
+   ------------------------------------------------------------ */
 async function init() {
+  initTheme();
   bindNavigation();
 
+  updateSystemClock();
+  setInterval(updateSystemClock, 1000);
+
   await checkBackend();
-  await loadCloudflare();
-  await loadConfig();
-  await loadRailway();
+  await Promise.allSettled([
+    loadCloudflare(),
+    loadConfig(),
+    loadRailway(),
+  ]);
 }
 
 document.addEventListener("DOMContentLoaded", init);

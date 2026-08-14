@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta
@@ -15,142 +15,208 @@
   <div class="app-shell">
 
     <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">W</div>
-        <div>
-          <div class="brand-name" data-text="WISH K E CYBER PANEL">WISH K E CYBER PANEL</div>
-          <div class="brand-sub">CONTROL PLANE</div>
+
+      <!-- A. BRAND / IDENTITY REGION
+           Reserved for the future Avatar + branding. The Avatar artwork
+           is intentionally left untouched in this phase. -->
+      <div class="sidebar-identity">
+        <div class="brand">
+          <div class="brand-mark">W</div>
+          <div>
+            <div class="brand-name" data-text="WISH K E CYBER PANEL">WISH K E CYBER PANEL</div>
+            <div class="brand-sub">CONTROL PLANE</div>
+          </div>
         </div>
       </div>
 
-      <nav>
-        <button class="nav-item active" data-view="dashboard">
-          <span>◈</span>
-          Dashboard
-        </button>
+      <!-- B. NAVIGATION REGION -->
+      <nav class="sidebar-nav">
 
-        <button class="nav-item" data-view="workers">
-          <span>▣</span>
-          Workers
-        </button>
+        <div class="nav-group">
+          <div class="nav-group-label">Control</div>
+          <button class="nav-item active" data-view="dashboard">
+            <span class="nav-icon">◈</span>
+            Dashboard
+          </button>
+        </div>
 
-        <button class="nav-item" data-view="deployments">
-          <span>↻</span>
-          Deployments
-        </button>
+        <div class="nav-group">
+          <div class="nav-group-label">Cloudflare</div>
+          <button class="nav-item" data-view="workers">
+            <span class="nav-icon">▣</span>
+            Workers
+          </button>
+          <button class="nav-item" data-view="deployments">
+            <span class="nav-icon">↻</span>
+            Deployments
+          </button>
+          <button class="nav-item" data-view="config">
+            <span class="nav-icon">⌘</span>
+            Config Builder
+          </button>
+        </div>
 
-        <button class="nav-item" data-view="config">
-          <span>◈</span>
-          Config Builder
-        </button>
+        <div class="nav-group">
+          <div class="nav-group-label">Network</div>
+          <button class="nav-item" data-view="network">
+            <span class="nav-icon">⌁</span>
+            Network Checker
+          </button>
+          <button class="nav-item" data-view="railway">
+            <span class="nav-icon">⇶</span>
+            Railway Relay
+          </button>
+        </div>
 
-        <button class="nav-item" data-view="network">
-          <span>⌁</span>
-          Network Checker
-        </button>
+        <div class="nav-group">
+          <div class="nav-group-label">System</div>
+          <button class="nav-item" data-view="settings">
+            <span class="nav-icon">⚙</span>
+            Settings
+          </button>
+        </div>
 
-        <button class="nav-item" data-view="railway">
-          <span>🚂</span>
-          Railway Relay
-        </button>
-
-        <button class="nav-item" data-view="settings">
-          <span>⚙</span>
-          Settings
-        </button>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="connection-dot"></div>
-        <div>
-          <div class="footer-title">Local Backend</div>
-          <div id="backend-status">Checking...</div>
+      <!-- C. SYSTEM STATUS REGION -->
+      <div class="sidebar-status">
+        <div class="system-status">
+          <span id="backend-dot" class="status-dot starting"></span>
+          <div>
+            <div class="footer-title">Local Backend</div>
+            <div id="backend-status" class="starting">Starting...</div>
+            <div class="status-address">127.0.0.1:8765</div>
+          </div>
         </div>
       </div>
+
     </aside>
 
     <main class="main">
 
       <header class="topbar">
         <div>
-          <div class="eyebrow">CLOUD CONTROL PLANE</div>
+          <div class="eyebrow" id="page-eyebrow">CONTROL</div>
           <h1 id="page-title">Dashboard</h1>
+        </div>
+
+        <div class="topbar-status" title="System information">
+          <span class="sys-label">Date</span>
+          <span class="system-value" id="sys-date">--</span>
+          <span class="sys-sep">·</span>
+          <span class="sys-label">Time</span>
+          <span class="system-value" id="sys-time">--:--:--</span>
+          <span class="sys-sep">·</span>
+          <span class="sys-label">Uptime</span>
+          <span class="system-value" id="sys-uptime">--:--:--</span>
         </div>
 
         <div class="top-actions">
           <span class="version">v0.1.0</span>
+          <button id="theme-toggle" class="theme-toggle" title="Toggle light / dark mode">
+            <span class="theme-dot"></span>
+            <span id="theme-toggle-label">Dark</span>
+          </button>
           <button id="refresh-btn" class="button secondary">
             Refresh
           </button>
         </div>
       </header>
 
+      <!-- ===================== DASHBOARD ===================== -->
       <section id="view-dashboard" class="view active">
 
-        <div class="connection-banner not-connected">
-          <div class="status-icon">!</div>
-
+        <!-- Global connection status: ONE authoritative Cloudflare state. -->
+        <div id="cf-global-status" class="global-status connecting">
+          <div class="status-icon">…</div>
           <div class="banner-content">
             <div class="banner-title">
-              Cloudflare is not connected
+              <span id="cf-status-title">Checking Cloudflare connection...</span>
+              <span id="cf-status-badge" class="status-badge warning">CONNECTING</span>
             </div>
-            <div class="banner-text">
-              Add your Cloudflare credentials later to activate live
-              account data. The interface is ready.
+            <div id="cf-status-text" class="banner-text">
+              Verifying credentials against the Cloudflare API.
             </div>
           </div>
-
-          <button class="button primary" data-view-target="settings">
+          <button id="cf-global-action" class="button primary" data-view-target="settings">
             Configure
           </button>
         </div>
 
+        <!-- Key metrics -->
         <div class="stats-grid">
 
           <div class="stat-card">
             <div class="stat-label">CONNECTION</div>
-            <div id="stat-connection" class="stat-value muted">
-              Not Connected
-            </div>
-            <div class="stat-meta">
-              Cloudflare API
-            </div>
+            <div id="stat-connection" class="stat-value muted">Checking…</div>
+            <div class="stat-meta">Cloudflare API</div>
           </div>
 
           <div class="stat-card">
             <div class="stat-label">WORKERS</div>
-            <div id="stat-workers" class="stat-value">3</div>
-            <div class="stat-meta">
-              Contract preview
-            </div>
+            <div id="stat-workers" class="stat-value">—</div>
+            <div class="stat-meta">Live inventory</div>
           </div>
 
           <div class="stat-card">
             <div class="stat-label">DEPLOYMENTS</div>
-            <div id="stat-deployments" class="stat-value">8</div>
-            <div class="stat-meta">
-              Contract preview
-            </div>
+            <div id="stat-deployments" class="stat-value">—</div>
+            <div class="stat-meta">Recent deployments</div>
           </div>
 
           <div class="stat-card">
             <div class="stat-label">BACKEND</div>
-            <div id="stat-backend" class="stat-value">Online</div>
-            <div class="stat-meta">
-              127.0.0.1:8765
-            </div>
+            <div id="stat-backend" class="stat-value muted">Starting…</div>
+            <div class="stat-meta">127.0.0.1:8765</div>
           </div>
 
         </div>
 
+        <!-- Quick actions -->
+        <div class="section-header">
+          <div>
+            <div class="section-title">Quick actions</div>
+            <div class="section-subtitle">Jump straight into the most common operations</div>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <button class="quick-action" data-view-target="workers">
+            <span class="quick-action-icon">+</span>
+            <span>
+              <div class="quick-action-label">Create Worker</div>
+              <div class="quick-action-meta">Workers module</div>
+            </span>
+          </button>
+          <button class="quick-action" data-view-target="config">
+            <span class="quick-action-icon">▷</span>
+            <span>
+              <div class="quick-action-label">Deploy Panel</div>
+              <div class="quick-action-meta">Config Builder</div>
+            </span>
+          </button>
+          <button class="quick-action" data-view-target="config">
+            <span class="quick-action-icon">⌘</span>
+            <span>
+              <div class="quick-action-label">Config Builder</div>
+              <div class="quick-action-meta">Build your panel</div>
+            </span>
+          </button>
+          <button class="quick-action" data-view-target="network">
+            <span class="quick-action-icon">⌁</span>
+            <span>
+              <div class="quick-action-label">Network Check</div>
+              <div class="quick-action-meta">Network Checker</div>
+            </span>
+          </button>
+        </div>
+
+        <!-- Workers summary -->
         <div class="section-header">
           <div>
             <div class="section-title">Workers</div>
-            <div class="section-subtitle">
-              Cloudflare Worker inventory
-            </div>
+            <div class="section-subtitle">Cloudflare Worker inventory</div>
           </div>
-
           <button class="button secondary" data-view-target="workers">
             View all
           </button>
@@ -158,80 +224,78 @@
 
         <div id="dashboard-workers" class="worker-grid"></div>
 
+        <!-- Recent activity -->
+        <div class="section-header">
+          <div>
+            <div class="section-title">Recent activity</div>
+            <div class="section-subtitle">Real events from the control plane</div>
+          </div>
+        </div>
+
+        <div id="activity-list" class="activity-list">
+          <div class="activity-empty">No activity recorded yet.</div>
+        </div>
+
       </section>
 
+      <!-- ===================== WORKERS ===================== -->
       <section id="view-workers" class="view">
 
         <div class="section-header">
           <div>
             <div class="section-title">Workers</div>
-            <div class="section-subtitle">
-              Live API data when connected, contract data otherwise
+            <div class="section-subtitle">Live API data when connected, contract data otherwise</div>
+          </div>
+          <div class="page-header-actions">
+            <div class="search-field">
+              <span>⌕</span>
+              <input id="workers-search" type="text" autocomplete="off"
+                     placeholder="Search workers...">
             </div>
+            <button id="workers-refresh" class="button secondary">Refresh</button>
           </div>
         </div>
 
-        <div id="workers-list" class="table-card"></div>
+        <div id="workers-list" class="table-card table-scroll"></div>
 
       </section>
 
+      <!-- ===================== DEPLOYMENTS ===================== -->
       <section id="view-deployments" class="view">
 
         <div class="section-header">
           <div>
             <div class="section-title">Deployments</div>
-            <div class="section-subtitle">
-              Worker deployment history
-            </div>
+            <div class="section-subtitle">Worker deployment history</div>
           </div>
+          <button id="deployments-refresh" class="button secondary">Refresh</button>
         </div>
 
-        <div id="deployments-list" class="table-card"></div>
+        <div id="deployments-list" class="table-card table-scroll"></div>
 
       </section>
 
+      <!-- ===================== NETWORK CHECKER ===================== -->
       <section id="view-network" class="view">
 
         <div class="section-header">
           <div>
             <div class="section-title">Network Checker</div>
-            <div class="section-subtitle">
-              Network tools for your own internet connection
-            </div>
+            <div class="section-subtitle">Network tools for your own internet connection</div>
           </div>
         </div>
 
         <div class="net-tabs">
-          <button class="net-tab active" data-net-tab="cleanip">
-            Clean IPs
-          </button>
-          <button class="net-tab" data-net-tab="domains">
-            Domains
-          </button>
-          <button class="net-tab" data-net-tab="dns">
-            DNS
-          </button>
-          <button class="net-tab" data-net-tab="dns-hunt">
-            DNS Hunter
-          </button>
-          <button class="net-tab" data-net-tab="vless">
-            Vless Modifier
-          </button>
-          <button class="net-tab" data-net-tab="xray">
-            CDN Xray Scan
-          </button>
-          <button class="net-tab" data-net-tab="akamai">
-            Akamai
-          </button>
-          <button class="net-tab" data-net-tab="netlify">
-            Netlify
-          </button>
-          <button class="net-tab" data-net-tab="sni">
-            SNI Spoof
-          </button>
-          <button class="net-tab" data-net-tab="diag">
-            Diagnostics
-          </button>
+          <button class="net-tab active" data-net-tab="cleanip">Clean IPs</button>
+          <button class="net-tab" data-net-tab="domains">Domains</button>
+          <button class="net-tab" data-net-tab="dns">DNS</button>
+          <button class="net-tab" data-net-tab="dns-hunt">DNS Hunter</button>
+          <button class="net-tab" data-net-tab="vless">Vless Modifier</button>
+          <button class="net-tab" data-net-tab="xray">CDN Xray Scan</button>
+          <button class="net-tab" data-net-tab="akamai">Akamai</button>
+          <button class="net-tab" data-net-tab="netlify">Netlify</button>
+          <button class="net-tab" data-net-tab="sni">SNI Spoof</button>
+          <button class="net-tab" data-net-tab="diag">Diagnostics</button>
         </div>
 
         <!-- Clean IP scan -->
@@ -278,9 +342,7 @@
             </div>
 
             <div class="cred-actions">
-              <button id="net-scan-btn" class="button primary">
-                Start scan
-              </button>
+              <button id="net-scan-btn" class="button primary">Start scan</button>
               <span id="net-scan-status" class="form-status"></span>
             </div>
 
@@ -317,9 +379,7 @@
             </div>
 
             <div class="cred-actions">
-              <button id="net-domains-btn" class="button primary">
-                Check domains
-              </button>
+              <button id="net-domains-btn" class="button primary">Check domains</button>
               <span id="net-domains-status" class="form-status"></span>
             </div>
 
@@ -339,9 +399,7 @@
             </div>
 
             <div class="cred-actions">
-              <button id="net-dns-btn" class="button primary">
-                Run DNS test
-              </button>
+              <button id="net-dns-btn" class="button primary">Run DNS test</button>
               <span id="net-dns-status" class="form-status"></span>
             </div>
 
@@ -376,9 +434,7 @@
             </div>
 
             <div class="cred-actions">
-              <button id="net-vless-btn" class="button primary">
-                Generate configs
-              </button>
+              <button id="net-vless-btn" class="button primary">Generate configs</button>
               <span id="net-vless-status" class="form-status"></span>
             </div>
 
@@ -412,9 +468,7 @@
             </div>
 
             <div class="cred-actions">
-              <button id="net-sni-btn" class="button primary">
-                Run check
-              </button>
+              <button id="net-sni-btn" class="button primary">Run check</button>
               <span id="net-sni-status" class="form-status"></span>
             </div>
 
@@ -443,9 +497,7 @@
             </div>
 
             <div class="cred-actions">
-              <button id="net-dns-hunt-btn" class="button primary">
-                Hunt DNS
-              </button>
+              <button id="net-dns-hunt-btn" class="button primary">Hunt DNS</button>
               <span id="net-dns-hunt-status" class="form-status"></span>
             </div>
 
@@ -484,9 +536,7 @@
             </div>
 
             <div class="cred-actions">
-              <button id="net-xray-btn" class="button primary">
-                Scan CDN
-              </button>
+              <button id="net-xray-btn" class="button primary">Scan CDN</button>
               <span id="net-xray-status" class="form-status"></span>
             </div>
 
@@ -518,9 +568,7 @@
             </div>
 
             <div class="cred-actions">
-              <button id="net-akamai-btn" class="button primary">
-                Scan Akamai
-              </button>
+              <button id="net-akamai-btn" class="button primary">Scan Akamai</button>
               <span id="net-akamai-status" class="form-status"></span>
             </div>
 
@@ -554,9 +602,7 @@
             </div>
 
             <div class="cred-actions">
-              <button id="net-netlify-btn" class="button primary">
-                Generate configs
-              </button>
+              <button id="net-netlify-btn" class="button primary">Generate configs</button>
               <span id="net-netlify-status" class="form-status"></span>
             </div>
 
@@ -585,9 +631,7 @@
             </div>
 
             <div class="cred-actions">
-              <button id="net-diag-btn" class="button primary">
-                Run diagnostics
-              </button>
+              <button id="net-diag-btn" class="button primary">Run diagnostics</button>
               <span id="net-diag-status" class="form-status"></span>
             </div>
 
@@ -599,6 +643,7 @@
 
       </section>
 
+      <!-- ===================== RAILWAY RELAY ===================== -->
       <section id="view-railway" class="view">
 
         <div class="section-header">
@@ -609,9 +654,7 @@
             </div>
           </div>
 
-          <button id="rw-refresh" class="button secondary">
-            Refresh
-          </button>
+          <button id="rw-refresh" class="button secondary">Refresh</button>
         </div>
 
         <div class="settings-card">
@@ -640,9 +683,7 @@
             </label>
 
             <div class="cred-actions">
-              <button id="rw-save-token-btn" class="button primary">
-                Save Token
-              </button>
+              <button id="rw-save-token-btn" class="button primary">Save Token</button>
               <span id="rw-save-token-status" class="form-status"></span>
             </div>
           </div>
@@ -713,9 +754,7 @@
           </div>
 
           <div class="cred-actions">
-            <button id="rw-deploy-btn" class="button primary">
-              Deploy automatically
-            </button>
+            <button id="rw-deploy-btn" class="button primary">Deploy automatically</button>
             <span id="rw-deploy-status" class="form-status"></span>
           </div>
 
@@ -751,17 +790,16 @@
           </div>
           <pre id="rw-debug-content" class="logs-content"></pre>
           <div class="cred-actions">
-            <button id="rw-debug-close" class="button secondary">
-              Close
-            </button>
+            <button id="rw-debug-close" class="button secondary">Close</button>
           </div>
         </div>
 
       </section>
 
+      <!-- ===================== SETTINGS ===================== -->
       <section id="view-settings" class="view">
-        <div class="settings-card">
 
+        <div class="settings-card">
           <div class="section-title">Cloudflare Configuration</div>
           <div class="section-subtitle">
             Credentials remain server-side and are never exposed to the UI.
@@ -801,16 +839,12 @@
             </label>
 
             <div class="cred-actions">
-              <button id="cred-save-btn" class="button primary">
-                Save Credentials
-              </button>
+              <button id="cred-save-btn" class="button primary">Save Credentials</button>
               <span id="cred-save-status" class="form-status"></span>
             </div>
 
             <div class="cred-actions">
-              <button id="cred-proxy-btn" class="button secondary">
-                Save Proxy
-              </button>
+              <button id="cred-proxy-btn" class="button secondary">Save Proxy</button>
               <span id="cred-proxy-status" class="form-status"></span>
             </div>
           </div>
@@ -822,11 +856,36 @@
               Existing deployments are reused across app restarts.
             </p>
           </div>
+        </div>
 
+        <div class="settings-card">
+          <div class="section-title">Appearance</div>
+          <div class="section-subtitle">
+            The interface uses a single component system with two appearance
+            modes. Dark is the default.
+          </div>
+
+          <div class="appearance-options">
+            <button class="appearance-option dark selected" data-appearance="dark" id="appearance-dark">
+              <span class="swatch"></span>
+              <span>
+                <div class="option-label">Dark mode</div>
+                <div class="option-hint">Default · near-black navy with yellow accent</div>
+              </span>
+            </button>
+            <button class="appearance-option light" data-appearance="light" id="appearance-light">
+              <span class="swatch"></span>
+              <span>
+                <div class="option-label">Light mode</div>
+                <div class="option-hint">Clean light surfaces, same architecture</div>
+              </span>
+            </button>
+          </div>
         </div>
 
       </section>
 
+      <!-- ===================== CONFIG BUILDER ===================== -->
       <section id="view-config" class="view">
 
         <div class="section-header">
@@ -837,9 +896,7 @@
             </div>
           </div>
 
-          <button id="config-refresh" class="button secondary">
-            Refresh deployments
-          </button>
+          <button id="config-refresh" class="button secondary">Refresh deployments</button>
         </div>
 
         <div class="steps-bar">
@@ -910,9 +967,7 @@
             </div>
 
             <div class="cred-actions">
-              <button id="config-deploy-btn" class="button primary">
-                Install automatically
-              </button>
+              <button id="config-deploy-btn" class="button primary">Install automatically</button>
               <span id="config-deploy-status" class="form-status"></span>
             </div>
 
@@ -994,9 +1049,7 @@
           </div>
           <div id="config-logs-content" class="logs-content"></div>
           <div class="cred-actions">
-            <button id="config-logs-close" class="button secondary">
-              Close
-            </button>
+            <button id="config-logs-close" class="button secondary">Close</button>
           </div>
         </div>
 
@@ -1009,6 +1062,9 @@
 
     </main>
   </div>
+
+  <div id="toast-container" class="toast-container"></div>
+  <div id="confirm-root"></div>
 
   <script src="app.js"></script>
 </body>
