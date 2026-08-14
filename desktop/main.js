@@ -11,71 +11,153 @@ const http = require("http");
 const BACKEND_HOST = process.env.CLOUDPILOT_BACKEND_HOST || "127.0.0.1";
 const BACKEND_PORT = Number(process.env.CLOUDPILOT_BACKEND_PORT) || 8765;
 const BACKEND_HEALTH_PATH = "/api/health";
+const BACKEND_RESTART_MAX = 2;
 
 let backendProcess = null;
+let backendPid = null;
 let mainWindow = null;
+let quitting = false;
+let restartAttempts = 0;
 
-function getPythonCommand() {
-  if (process.env.CLOUDPILOT_PYTHON) {
-    return process.env.CLOUDPILOT_PYTHON;
-  }
-
-  const projectVenv = path.join(
-    __dirname,
-    "..",
-    ".venv",
-    process.platform === "win32" ? "Scripts" : "bin",
-    process.platform === "win32" ? "python.exe" : "python"
-  );
-
-  return projectVenv;
+if (process.platform === "win32") {
+  app.setAppUserModelId("com.johnny.cloudpilot");
 }
 
-function startBackend() {
-  return new Promise((resolve, reject) => {
-    const python = getPythonCommand();
+function backendExecutableName() {
+  return process.platform === "win32"
+    ? "cloudpilot-backend.exe"
+    : "cloudpilot-backend";
+}
 
-    backendProcess = spawn(
-      python,
-      [
-        "-m",
-        "uvicorn",
-        "backend.app:app",
-        "--host",
-        BACKEND_HOST,
-        "--port",
-        String(BACKEND_PORT),
-      ],
+function getBackendCommand() {
+  if (app.isPackaged) {
+    return {
+      command: path.join(
+        process.resourcesPath,
+        "backend",
+        backendExecutableName()
+      ),
+      args: [],
+      cwd: process.resourcesPath,
+    };
+  }
+
+  const python =
+    process.env.CLOUDPILOT_PYTHON ||
+    path.join(
+      __dirname,
+      "..",
+      ".venv",
+      process.platform === "win32" ? "Scripts" : "bin",
+      process.platform === "win32" ? "python.exe" : "python"
+    );
+
+  return {
+    command: python,
+    args: [
+      "-m",
+      "uvicorn",
+      "backend.app:app",
+      "--host",
+      BACKEND_HOST,
+      "--port",
+      String(BACKEND_PORT),
+    ],
+    cwd: path.join(__dirname, ".."),
+  };
+}
+
+function checkBackendHealthy(timeoutMs = 2000) {
+  return new Promise((resolve) => {
+    const request = http.get(
       {
-        cwd: path.join(__dirname, ".."),
-        env: {
-          ...process.env,
-          PYTHONUNBUFFERED: "1",
-        },
-        stdio: ["ignore", "pipe", "pipe"],
+        host: BACKEND_HOST,
+        port: BACKEND_PORT,
+        path: BACKEND_HEALTH_PATH,
+        timeout: timeoutMs,
+      },
+      (response) => {
+        let body = "";
+        response.on("data", (chunk) => {
+          body += chunk;
+        });
+        response.on("end", () => {
+          if (response.statusCode === 200) {
+            try {
+              resolve(JSON.parse(body));
+            } catch {
+              resolve({});
+            }
+            return;
+          }
+          resolve(null);
+        });
       }
     );
 
-    backendProcess.stdout.on("data", (data) => {
-      console.log(`[backend] ${data.toString().trim()}`);
+    request.on("error", () => resolve(null));
+    request.on("timeout", () => {
+      request.destroy();
+      resolve(null);
     });
+  });
+}
 
-    backendProcess.stderr.on("data", (data) => {
-      console.error(`[backend] ${data.toString().trim()}`);
-    });
+function spawnBackend() {
+  const { command, args, cwd } = getBackendCommand();
 
-    backendProcess.on("error", (error) => {
-      reject(
-        new Error(`Failed to start backend: ${error.message}`)
-      );
-    });
+  console.log(`[backend] starting: ${command}`);
 
-    backendProcess.on("exit", (code, signal) => {
-      console.log(
-        `[backend] exited code=${code} signal=${signal}`
-      );
+  backendProcess = spawn(command, args, {
+    cwd,
+    env: {
+      ...process.env,
+      CLOUDPILOT_BACKEND_HOST: BACKEND_HOST,
+      CLOUDPILOT_BACKEND_PORT: String(BACKEND_PORT),
+      PYTHONUNBUFFERED: "1",
+    },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
 
-      backendProcess = null;
+  backendPid = backendProcess.pid;
+
+  backendProcess.stdout.on("data", (data) => {
+    console.log(`[backend] ${data.toString().trim()}`);
+  });
+
+  backendProcess.stderr.on("data", (data) => {
+    console.error(`[backend] ${data.toString().trim()}`);
+  });
+
+  backendProcess.on("exit", (code, signal) => {
+    console.log(`[backend] exited code=${code} signal=${signal}`);
+    backendProcess = null;
+    backendPid = null;
+
+    if (!quitting && mainWindow && !mainWindow.isDestroyed()) {
+      maybeRestartBackend();
+    }
+  });
+}
+
+function startBackend() {
+  return new Promise(async (resolve, reject) => {
+    // A healthy backend already answering on the port (e.g. a leftover
+    // from a crashed shell or a second launch) is adopted instead of
+    // starting a duplicate process. The adopted pid is recorded so the
+    // shell can still stop it on shutdown.
+    const health = await checkBackendHealthy();
+    if (health) {
+      backendPid = health.pid || null;
+      console.log("[backend] existing healthy backend detected, reusing it");
+      resolve();
+      return;
+    }
+
+    spawnBackend();
+
+    backendProcess.once("error", (error) => {
+      reject(new Error(`Failed to start backend: ${error.message}`));
     });
 
     waitForBackend()
@@ -108,9 +190,7 @@ function waitForBackend(timeoutMs = 15000) {
 
           response.on("end", () => {
             if (response.statusCode === 200) {
-              console.log(
-                `[backend] healthy: ${body}`
-              );
+              console.log(`[backend] healthy: ${body}`);
               resolve();
               return;
             }
@@ -148,24 +228,66 @@ function waitForBackend(timeoutMs = 15000) {
 }
 
 function stopBackend() {
-  if (!backendProcess) {
+  if (!backendProcess && !backendPid) {
     return;
   }
 
-  console.log("[backend] stopping...");
+  const pid = backendProcess ? backendProcess.pid : backendPid;
 
-  backendProcess.kill("SIGTERM");
+  console.log(`[backend] stopping (pid=${pid})...`);
+
+  try {
+    process.kill(pid, "SIGTERM");
+  } catch (error) {
+    console.error(`[backend] SIGTERM failed: ${error.message}`);
+  }
 
   const killTimer = setTimeout(() => {
-    if (backendProcess) {
-      console.log("[backend] force killing...");
-      backendProcess.kill("SIGKILL");
+    try {
+      console.log(`[backend] force killing (pid=${pid})...`);
+      process.kill(pid, "SIGKILL");
+    } catch (error) {
+      /* The process already exited. */
     }
   }, 3000);
 
-  backendProcess.once("exit", () => {
-    clearTimeout(killTimer);
-  });
+  if (backendProcess) {
+    backendProcess.once("exit", () => {
+      clearTimeout(killTimer);
+      backendProcess = null;
+      backendPid = null;
+    });
+  } else {
+    // Adopted backend: wait briefly, then clear the handle.
+    setTimeout(() => {
+      clearTimeout(killTimer);
+      backendPid = null;
+    }, 500);
+  }
+}
+
+function maybeRestartBackend() {
+  if (quitting) {
+    return;
+  }
+
+  if (restartAttempts >= BACKEND_RESTART_MAX) {
+    console.error("[backend] giving up after repeated crashes");
+    return;
+  }
+
+  restartAttempts += 1;
+  console.log(
+    `[backend] restart attempt ${restartAttempts}/${BACKEND_RESTART_MAX}`
+  );
+
+  startBackend()
+    .then(() => {
+      console.log("[backend] restarted");
+    })
+    .catch((error) => {
+      console.error(`[backend] restart failed: ${error.message}`);
+    });
 }
 
 function createWindow() {
@@ -180,6 +302,7 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
     },
   });
 
@@ -209,7 +332,7 @@ function createWindow() {
 async function bootstrap() {
   try {
     console.log("========== CloudPilot ==========");
-    console.log("[shell] starting backend...");
+    console.log(`[shell] starting backend (${BACKEND_HOST}:${BACKEND_PORT})...`);
 
     await startBackend();
 
@@ -219,30 +342,48 @@ async function bootstrap() {
 
     console.log("[shell] Electron window ready");
   } catch (error) {
-    console.error(
-      `[shell] startup failed: ${error.message}`
-    );
+    console.error(`[shell] startup failed: ${error.message}`);
 
+    quitting = true;
     stopBackend();
 
     app.quit();
   }
 }
 
-app.whenReady().then(bootstrap);
+const gotLock = app.requestSingleInstanceLock();
 
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
+if (!gotLock) {
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore();
+      }
+      mainWindow.focus();
+    }
+  });
 
-app.on("before-quit", () => {
-  stopBackend();
-});
+  app.whenReady().then(bootstrap);
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+
+  app.on("before-quit", () => {
+    quitting = true;
+    stopBackend();
+  });
+
+  app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+      app.quit();
+    }
+  });
+
+  process.on("SIGINT", () => app.quit());
+  process.on("SIGTERM", () => app.quit());
+}
