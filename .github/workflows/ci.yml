@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  test-linux:
+    name: Python tests (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q
+
+  build-linux:
+    name: Build Linux (deb + AppImage)
+    needs: test-linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Sync version + generate icons
+        run: |
+          node scripts/sync-version.js
+          node scripts/generate-icons.js
+      - name: Bundle backend with PyInstaller
+        run: |
+          python -m PyInstaller --clean --noconfirm packaging/backend.spec
+          node scripts/fix-backend-dist.js
+      - name: Build Linux installers
+        run: npx electron-builder --linux deb AppImage
+      - name: Generate checksums
+        run: node scripts/sha256sums.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          path: |
+            release/*.deb
+            release/*.AppImage
+            release/SHA256SUMS
+
+  build-windows:
+    name: Build Windows (NSIS + portable)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: pip install -r requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - name: Sync version + generate icons
+        run: |
+          node scripts/sync-version.js
+          node scripts/generate-icons.js
+      - name: Bundle backend with PyInstaller
+        run: |
+          python -m PyInstaller --clean --noconfirm packaging/backend.spec
+          node scripts/fix-backend-dist.js
+      - name: Build Windows installers
+        run: npx electron-builder --win nsis portable
+      - name: Generate checksums
+        run: node scripts/sha256sums.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: |
+            release/*.exe
+            release/SHA256SUMS
+
+  build-android:
+    name: Build Android (APK)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build debug APK
+        run: |
+          cd android
+          gradle assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
