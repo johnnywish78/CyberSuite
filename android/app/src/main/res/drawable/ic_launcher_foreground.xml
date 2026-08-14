@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Cloud glyph (white) centered in the adaptive-icon safe zone -->
+    <path
+        android:fillColor="#F4F7FF"
+        android:pathData="M36,70 a8,8 0 1 1 0,-16 a9,9 0 0 1 17,-4 a9,9 0 0 1 16,4 a8,8 0 0 1 0,16 z" />
+
+    <!-- Accent underline -->
+    <path
+        android:fillColor="#3B82F6"
+        android:pathData="M30,76 h48 a4,4 0 0 1 0,8 h-48 a4,4 0 0 1 0,-8 z" />
+</vector>

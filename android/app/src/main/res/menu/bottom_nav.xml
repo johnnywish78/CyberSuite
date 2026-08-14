@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_dashboard"
+        android:title="@string/nav_dashboard" />
+    <item
+        android:id="@+id/nav_workers"
+        android:title="@string/nav_workers" />
+    <item
+        android:id="@+id/nav_deployments"
+        android:title="@string/nav_deployments" />
+    <item
+        android:id="@+id/nav_railway"
+        android:title="@string/nav_railway" />
+    <item
+        android:id="@+id/nav_settings"
+        android:title="@string/nav_settings" />
+</menu>
